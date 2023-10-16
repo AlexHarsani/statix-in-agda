@@ -1,4 +1,4 @@
-module Graph where
+module Graph (L : Set) where
 
 open import Data.String
 open import Data.List
@@ -9,29 +9,45 @@ record Node : Set where
         name : String
 
 -- Scope graph edge
-record Edge (L : Set) : Set where
+record Edge : Set where
     field
         from : Node
         label : L
         to : Node
 
 -- Scope graph term
-data Term (L : Set) : Set where
-    var : String → Term L
-    compound : String → (List (Term L)) → Term L
-    label : L → Term L
-    node : Node → Term L
+data Term : Set where
+    var : String → Term
+    compound : String → (List Term) → Term
+    label : L → Term
+    node : Node → Term
+
+postulate
+    -- proof that terms are equal
+    TermEq : Term → Term → Set
 
 -- Scope graph term set
-data TermSet (L : Set) : Set where
-    setVar : String → TermSet L
-    ∅ : TermSet L
-    single : Term L → TermSet L
-    _⊔_ : TermSet L → TermSet L → TermSet L
+data TermSet : Set₁ where
+    setVar : String → TermSet
+    ∅ : TermSet
+    single : Term → TermSet
+    _⊔_ : TermSet → TermSet → TermSet
 
 -- Scope graph
 record Graph : Set₁ where
     field
         nodes : List Node
-        edges : {L : Set} → List (Edge L)
-        mapG : {L : Set} → (Node → Term L)
+        edges : L → List Edge
+        mapG : (Node → Term)
+
+-- Scope graph fragment
+record GraphFragment : Set where
+    field
+        nodes : List Node
+        edges : List Edge
+
+postulate
+    -- proof that graph fragment is well formed
+    WellFormedness : GraphFragment → Set
+    -- proof that second and third graph fragment are partition of the first graph fragment
+    Partition : GraphFragment → GraphFragment → GraphFragment → Set

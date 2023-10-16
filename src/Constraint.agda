@@ -1,10 +1,8 @@
-module Constraint where
+module Constraint (L : Set) where
 
 open import Data.List
-open import Data.Unit
-open import Data.Empty
+open import Data.Product
 
-open import Support
 open import Graph
 
 postulate
@@ -18,23 +16,33 @@ data Constraint : Set₁ where
     -- separating conjunction
     _*_ : Constraint → Constraint → Constraint
     -- term equality
-    _=t=_ : {L : Set} → Term L → Term L → Constraint
+    _=t=_ : (Term L) → (Term L) → Constraint
     -- existential quantification
-    existsC_inC_ : {L : Set} → Term L → Constraint → Constraint
+    existsC_inC_ : (Term L) → Constraint → Constraint
     -- set singletons
-    single : {L : Set} → Term L → TermSet L → Constraint
+    single : (Term L) → (TermSet L) → Constraint
     -- minimum
-    min : {L : Set} → TermSet L → Relation → TermSet L → Constraint
+    min : (Term L) → Relation → (Term L) → Constraint
     -- forall
-    forallC_inC_ : {L : Set} → Term L → TermSet L → Constraint → Constraint
+    forallC_inC_ : (Term L) → (Term L) → Constraint → Constraint
 
-_withS_⊨_ : Graph → Support → Constraint → Set
-g withS empty ⊨ emp = ⊤
-g withS (σ₁ ⊔ σ₂) ⊨ (c₁ * c₂) = {!   !} and {!   !}
-
--- g withS (σ₁ ⊔ σ₂) ⊨ (c₁ * c₂) = (g withS σ₁ ⊨ c₁) and (g withS σ₂ ⊨ c₂)
-g withS s ⊨ c = ⊥
--- g withS ⊥ ⊨ (t₁ =t= t₂) = t₁ === t₂
--- g withS ⊥ ⊨ (single t ts) = true
--- g withS ⊥ ⊨ (min ts₁ R ts₂) = {!   !}
--- g withS s ⊨ c = false
+data Satisfies : (Graph L) → Constraint → (Σ (GraphFragment L) (WellFormedness L)) → Set₁ where
+    satisfiesEmpty : {g : Graph L} → 
+        { wfProof : WellFormedness L (record { nodes = [] ; edges = [] }) } → 
+        Satisfies g emp (record { nodes = [] ; edges = [] } , wfProof)
+    satisfiesCompound : {g : Graph L} → 
+        { c1 c2 : Constraint } → 
+        { gf1 gf2 gf3 : GraphFragment L } → 
+        { gf1WfProof : WellFormedness L gf1 } →
+        { gf2WfProof : WellFormedness L gf2 } →
+        { gf3WfProof : WellFormedness L gf3 } →
+        { partition : Partition L gf1 gf2 gf3 } → 
+        Satisfies g c1 ((gf2 , gf2WfProof)) →
+        Satisfies g c2 ((gf3 , gf3WfProof)) →
+        Satisfies g (c1 * c2) (gf1 , gf1WfProof)
+    satisfiesTermEq : {g : Graph L} → 
+        { wfProof : WellFormedness L (record { nodes = [] ; edges = [] }) } →
+        { t1 t2 : Term L } →
+        { termEq : TermEq L t1 t2 } →
+        Satisfies g (t1 =t= t2) (( (record { nodes = [] ; edges = [] }) , wfProof ))
+        
