@@ -8,7 +8,7 @@ open import Graph L
 postulate
     Relation : Set
 
-data Constraint : Set₁ where
+data Constraint : Set where
     -- true
     emp : Constraint
     -- false
@@ -26,10 +26,10 @@ data Constraint : Set₁ where
     -- forall
     forallC_inC_ : Term → Term → Constraint → Constraint
 
-data Satisfies : Graph → Constraint → (Σ GraphFragment WellFormedness) → Set₁ where
+data Satisfies : Graph → Constraint → GraphFragment → Set where
     satisfiesEmpty : { g : Graph } → 
         { wfProof : WellFormedness (record { nodes = [] ; edges = [] }) } → 
-        Satisfies g emp (record { nodes = [] ; edges = [] } , wfProof)
+        Satisfies g emp (record { nodes = [] ; edges = [] })
     satisfiesCompound : { g : Graph } → 
         { c1 c2 : Constraint } → 
         { gf1 gf2 gf3 : GraphFragment } → 
@@ -37,12 +37,12 @@ data Satisfies : Graph → Constraint → (Σ GraphFragment WellFormedness) → 
         { gf2WfProof : WellFormedness gf2 } →
         { gf3WfProof : WellFormedness gf3 } →
         { partition : Partition gf1 gf2 gf3 } → 
-        Satisfies g c1 ((gf2 , gf2WfProof)) →
-        Satisfies g c2 ((gf3 , gf3WfProof)) →
-        Satisfies g (c1 * c2) (gf1 , gf1WfProof)
+        Satisfies g c1 gf2 →
+        Satisfies g c2 gf2 →
+        Satisfies g (c1 * c2) gf1
     satisfiesTermEq : {g : Graph } → 
         { wfProof : WellFormedness (record { nodes = [] ; edges = [] }) } →
         { t1 t2 : Term } →
         { termEq : TermEq t1 t2 } →
-        Satisfies g (t1 =t= t2) (( (record { nodes = [] ; edges = [] }) , wfProof ))
+        Satisfies g (t1 =t= t2) (record { nodes = [] ; edges = [] })
         
