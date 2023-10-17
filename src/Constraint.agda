@@ -53,7 +53,7 @@ data Satisfies : Graph → Constraint → GraphFragment → Set where
         { gf3WfProof : WellFormedness gf3 } →
         { partition : Partition gf1 gf2 gf3 } → 
         Satisfies g c1 gf2 →
-        Satisfies g c2 gf2 →
+        Satisfies g c2 gf3 →
         Satisfies g (c1 * c2) gf1
     satisfiesTermEq : {g : Graph } → 
         { gf : GraphFragment } →
