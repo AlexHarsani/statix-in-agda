@@ -70,4 +70,13 @@ data Satisfies : Graph → Constraint → GraphFragment → Set where
         { t : Term } →
         Satisfies g (substitute c x t) gf →
         Satisfies g (existsC x inC c) gf
+    satisfiesSingle : { g : Graph } →
+        { t : Term } →
+        { tSingle : TermSet } →
+        { tSingleton : SingletonTermSet t tSingle } →
+        { tWellFormed : WellFormedTermSet tSingle } →
+        { gf : GraphFragment } →
+        { emptyGf : Empty gf } →
+        { wfProof : WellFormedness gf } →
+        Satisfies g (single t tSingle) gf
         

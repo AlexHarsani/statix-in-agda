@@ -27,11 +27,15 @@ postulate
     TermEq : Term → Term → Set
 
 -- Scope graph term set
-data TermSet : Set where
-    setVar : String → TermSet
-    ∅ : TermSet
-    single : Term → TermSet
-    _⊔_ : TermSet → TermSet → TermSet
+record TermSet : Set where
+    field
+        terms : List Term
+
+postulate
+    EmptyTermSet : TermSet → Set
+    SingletonTermSet : Term → TermSet → Set
+    WellFormedTermSet : TermSet → Set
+    PartitionedTermSet : TermSet → TermSet → TermSet → Set
 
 -- Scope graph
 record Graph : Set where
