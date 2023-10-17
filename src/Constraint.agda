@@ -1,7 +1,6 @@
 module Constraint (L : Set) where
 
 open import Data.List
-open import Data.Product
 open import Data.String
 open import Relation.Nullary
 
@@ -42,8 +41,10 @@ substitute c t x = c
 
 data Satisfies : Graph → Constraint → GraphFragment → Set where
     satisfiesEmpty : { g : Graph } → 
-        { wfProof : WellFormedness (record { nodes = [] ; edges = [] }) } → 
-        Satisfies g emp (record { nodes = [] ; edges = [] })
+        { gf : GraphFragment } →
+        { emptyGf : Empty gf } →
+        { wfProof : WellFormedness gf } → 
+        Satisfies g emp gf
     satisfiesCompound : { g : Graph } → 
         { c1 c2 : Constraint } → 
         { gf1 gf2 gf3 : GraphFragment } → 
@@ -55,10 +56,12 @@ data Satisfies : Graph → Constraint → GraphFragment → Set where
         Satisfies g c2 gf2 →
         Satisfies g (c1 * c2) gf1
     satisfiesTermEq : {g : Graph } → 
-        { wfProof : WellFormedness (record { nodes = [] ; edges = [] }) } →
+        { gf : GraphFragment } →
+        { emptyGf : Empty gf } →
+        { wfProof : WellFormedness gf } →
         { t1 t2 : Term } →
         { termEq : TermEq t1 t2 } →
-        Satisfies g (t1 =t= t2) (record { nodes = [] ; edges = [] })
+        Satisfies g (t1 =t= t2) gf
     satisfiesExists : { g : Graph } → 
         { c : Constraint } → 
         { x : String } → 

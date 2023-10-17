@@ -42,11 +42,14 @@ record Graph : Set where
 
 -- Scope graph fragment
 record GraphFragment : Set where
+    constructor <_,_>
     field
         nodes : List Node
         edges : List Edge
 
 postulate
+    -- proof that graph fragment is empty
+    Empty : GraphFragment → Set
     -- proof that graph fragment is well formed
     WellFormedness : GraphFragment → Set
     -- proof that second and third graph fragment are partition of the first graph fragment
