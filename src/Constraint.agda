@@ -23,7 +23,7 @@ data Constraint : Set where
     -- minimum
     min : TermSet → Relation → TermSet → Constraint
     -- forall
-    forallC_inC_ : Term → Term → Constraint → Constraint
+    forallC : String → TermSet → Constraint → Constraint
 
 replaceTerm : Term → String → Term → Term
 replaceTerm (var y) x t2 with (x ≟ y) 
@@ -85,3 +85,28 @@ data Satisfies : Graph → Constraint → GraphFragment → Set where
         { wfProof : WellFormedness gf } → 
         { termSetEq : t' ≡ minTermSet t R } →
         Satisfies g (min t R t') gf
+    satisfiesForallEmpty : { g : Graph } → 
+        { x : String } →
+        { ts : TermSet } →
+        { emptyTermSetProof : EmptyTermSet ts } →
+        { c : Constraint } →
+        { gf : GraphFragment } →
+        { emptyProof : Empty gf } →
+        { wfProof : WellFormedness gf } → 
+        Satisfies g (forallC x ts c) gf
+    satisfiesForall : { g : Graph } → 
+        { x : String } →
+        { t1 : Term } →
+        { ts ts2 : TermSet } →
+        { tsWfProof : WellFormedTermSet ts } →
+        { ts2WfProof : WellFormedTermSet ts2 } →
+        { tsPartitionProof : PartitionedTermSet ts t1 ts2 } →
+        { c : Constraint } →
+        { gf1 gf2 gf3 : GraphFragment } → 
+        { gf1WfProof : WellFormedness gf1 } →
+        { gf2WfProof : WellFormedness gf2 } →
+        { gf3WfProof : WellFormedness gf3 } →
+        { partition : Partition gf1 gf2 gf3 } →
+        Satisfies g (substitute c x t1) gf2 →
+        Satisfies g (forallC x ts2 c) gf3 →
+        Satisfies g (forallC x ts c) gf1
