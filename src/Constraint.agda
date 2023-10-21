@@ -17,7 +17,7 @@ data Constraint : Set where
     -- term equality
     _=t=_ : Term → Term → Constraint
     -- existential quantification
-    existsC_inC_ : String → Constraint → Constraint
+    existsC : String → Constraint → Constraint
     -- set singletons
     single : Term → TermSet → Constraint
     -- minimum
@@ -34,14 +34,14 @@ replaceTerm t1 x t2 = t1
 substitute : Constraint → String → Term → Constraint
 substitute (c1 * c2) x t = substitute c1 x t * substitute c2 x t
 substitute (t1 =t= t2) x t = (replaceTerm t1 x t) =t= (replaceTerm t2 x t)
-substitute (existsC y inC c) x t = existsC y inC (substitute c x t)
+substitute (existsC y c) x t = existsC y (substitute c x t)
 substitute c t x = c
 
 data Satisfies : Graph → Constraint → GraphFragment → Set where
     satisfiesEmpty : { g : Graph } → 
         { gf : GraphFragment } →
-        { emptyGf : Empty gf } →
-        { wfProof : WellFormedness gf } → 
+        { gfEmptyProof : Empty gf } →
+        { gfWfProof : WellFormedness gf } → 
         Satisfies g emp gf
     satisfiesCompound : { g : Graph } → 
         { c1 c2 : Constraint } → 
@@ -49,14 +49,14 @@ data Satisfies : Graph → Constraint → GraphFragment → Set where
         { gf1WfProof : WellFormedness gf1 } →
         { gf2WfProof : WellFormedness gf2 } →
         { gf3WfProof : WellFormedness gf3 } →
-        { partition : Partition gf1 gf2 gf3 } → 
+        { gfPartitionProof : Partition gf1 gf2 gf3 } → 
         Satisfies g c1 gf2 →
         Satisfies g c2 gf3 →
         Satisfies g (c1 * c2) gf1
     satisfiesTermEq : {g : Graph } → 
         { gf : GraphFragment } →
-        { emptyGf : Empty gf } →
-        { wfProof : WellFormedness gf } →
+        { gfEmptyProof : Empty gf } →
+        { gfWfProof : WellFormedness gf } →
         { t1 t2 : Term } →
         { termEq : t1 ≡ t2 } →
         Satisfies g (t1 =t= t2) gf
@@ -64,35 +64,35 @@ data Satisfies : Graph → Constraint → GraphFragment → Set where
         { c : Constraint } → 
         { x : String } → 
         { gf : GraphFragment } →
-        { wfProof : WellFormedness gf }
+        { gfWfProof : WellFormedness gf }
         { t : Term } →
         Satisfies g (substitute c x t) gf →
-        Satisfies g (existsC x inC c) gf
+        Satisfies g (existsC x c) gf
     satisfiesSingle : { g : Graph } →
         { t : Term } →
-        { tSingle : TermSet } →
-        { tSingleton : SingletonTermSet t tSingle } →
-        { tWellFormed : WellFormedTermSet tSingle } →
+        { ts : TermSet } →
+        { tsSingletonProof : SingletonTermSet t ts } →
+        { tsWfProof : WellFormedTermSet ts } →
         { gf : GraphFragment } →
-        { emptyGf : Empty gf } →
-        { wfProof : WellFormedness gf } →
-        Satisfies g (single t tSingle) gf
+        { gfEmptyProof : Empty gf } →
+        { gfWfProof : WellFormedness gf } →
+        Satisfies g (single t ts) gf
     satisfiesMin : { g : Graph } → 
         { t t' : TermSet } →
         { R : Relation } →
         { gf : GraphFragment } →
-        { emptyProof : Empty gf } →
-        { wfProof : WellFormedness gf } → 
+        { gfEmptyProof : Empty gf } →
+        { gfWfProof : WellFormedness gf } → 
         { termSetEq : t' ≡ minTermSet t R } →
         Satisfies g (min t R t') gf
     satisfiesForallEmpty : { g : Graph } → 
         { x : String } →
         { ts : TermSet } →
-        { emptyTermSetProof : EmptyTermSet ts } →
+        { tsEmptyProof : EmptyTermSet ts } →
         { c : Constraint } →
         { gf : GraphFragment } →
-        { emptyProof : Empty gf } →
-        { wfProof : WellFormedness gf } → 
+        { gfEmptyProof : Empty gf } →
+        { gfWfProof : WellFormedness gf } → 
         Satisfies g (forallC x ts c) gf
     satisfiesForall : { g : Graph } → 
         { x : String } →
@@ -106,7 +106,7 @@ data Satisfies : Graph → Constraint → GraphFragment → Set where
         { gf1WfProof : WellFormedness gf1 } →
         { gf2WfProof : WellFormedness gf2 } →
         { gf3WfProof : WellFormedness gf3 } →
-        { partition : Partition gf1 gf2 gf3 } →
+        { gfPartitionProof : Partition gf1 gf2 gf3 } →
         Satisfies g (substitute c x t1) gf2 →
         Satisfies g (forallC x ts2 c) gf3 →
         Satisfies g (forallC x ts c) gf1
