@@ -23,3 +23,9 @@ compound-satisfied = satisfiesCompound
 
 term-eq-satisfied : { g : Graph } → { gf : GraphFragment } → Satisfies g ((var "x") =t= (var "x")) gf
 term-eq-satisfied = satisfiesTermEq { gfEmptyProof = gf-empty-proof } { gfWfProof = gf-wf-proof } { termEq = refl }
+
+exists-satisfied : { g : Graph } → { gf : GraphFragment } → Satisfies g (existsC "x" ((var "x") =t= (var "y"))) gf
+exists-satisfied = satisfiesExists 
+    { gfWfProof = gf-wf-proof } 
+    { t = (var "y") } 
+    (satisfiesTermEq { gfEmptyProof = gf-empty-proof } { gfWfProof = gf-wf-proof } { termEq = refl })
