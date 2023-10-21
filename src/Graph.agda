@@ -32,10 +32,12 @@ record TermSet : Set where
         terms : List Term
 
 postulate
+    Relation : Set
     EmptyTermSet : TermSet → Set
     SingletonTermSet : Term → TermSet → Set
     WellFormedTermSet : TermSet → Set
-    PartitionedTermSet : TermSet → TermSet → TermSet → Set
+    PartitionedTermSet : TermSet → Term → TermSet → Set
+    minTermSet : TermSet → Relation → TermSet
 
 -- Scope graph
 record Graph : Set where

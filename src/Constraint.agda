@@ -3,11 +3,9 @@ module Constraint (L : Set) where
 open import Data.List
 open import Data.String
 open import Relation.Nullary
+open import Relation.Binary.PropositionalEquality
 
 open import Graph L
-
-postulate
-    Relation : Set
 
 data Constraint : Set where
     -- true
@@ -23,7 +21,7 @@ data Constraint : Set where
     -- set singletons
     single : Term → TermSet → Constraint
     -- minimum
-    min : Term → Relation → Term → Constraint
+    min : TermSet → Relation → TermSet → Constraint
     -- forall
     forallC_inC_ : Term → Term → Constraint → Constraint
 
@@ -79,4 +77,11 @@ data Satisfies : Graph → Constraint → GraphFragment → Set where
         { emptyGf : Empty gf } →
         { wfProof : WellFormedness gf } →
         Satisfies g (single t tSingle) gf
-        
+    satisfiesMin : { g : Graph } → 
+        { t t' : TermSet } →
+        { R : Relation } →
+        { gf : GraphFragment } →
+        { emptyProof : Empty gf } →
+        { wfProof : WellFormedness gf } → 
+        { termSetEq : t' ≡ minTermSet t R } →
+        Satisfies g (min t R t') gf
