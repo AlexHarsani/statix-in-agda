@@ -58,7 +58,7 @@ data Satisfies : Graph → Constraint → GraphFragment → Set where
         { emptyGf : Empty gf } →
         { wfProof : WellFormedness gf } →
         { t1 t2 : Term } →
-        { termEq : TermEq t1 t2 } →
+        { termEq : t1 ≡ t2 } →
         Satisfies g (t1 =t= t2) gf
     satisfiesExists : { g : Graph } → 
         { c : Constraint } → 

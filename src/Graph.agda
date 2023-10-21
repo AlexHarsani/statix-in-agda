@@ -22,10 +22,6 @@ data Term : Set where
     label : L → Term
     node : Node → Term
 
-postulate
-    -- proof that terms are equal
-    TermEq : Term → Term → Set
-
 -- Scope graph term set
 record TermSet : Set where
     field
