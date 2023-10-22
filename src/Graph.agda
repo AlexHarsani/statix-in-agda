@@ -1,6 +1,6 @@
 module Graph (L : Set) where
 
-open import Data.String
+open import Data.String hiding (_++_)
 open import Data.List
 
 -- Scope graph node
@@ -55,3 +55,5 @@ postulate
     WellFormedness : GraphFragment → Set
     -- proof that second and third graph fragment are partition of the first graph fragment
     Partition : GraphFragment → GraphFragment → GraphFragment → Set
+    -- disjoint union of two graph fragments
+    _⊔_ : GraphFragment → GraphFragment → GraphFragment

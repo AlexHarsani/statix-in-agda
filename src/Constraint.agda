@@ -53,14 +53,14 @@ data Satisfies : Graph → Constraint → GraphFragment → Set where
         Satisfies g emp gf
     satisfiesCompound : { g : Graph } → 
         { c1 c2 : Constraint } → 
-        { gf1 gf2 gf3 : GraphFragment } → 
+        { gf1 gf2 : GraphFragment } → 
         { gf1WfProof : WellFormedness gf1 } →
         { gf2WfProof : WellFormedness gf2 } →
-        { gf3WfProof : WellFormedness gf3 } →
-        { gfPartitionProof : Partition gf1 gf2 gf3 } → 
-        Satisfies g c1 gf2 →
-        Satisfies g c2 gf3 →
-        Satisfies g (c1 * c2) gf1
+        { gfDuWfProof : WellFormedness (gf1 ⊔ gf2) } →
+        { gfPartitionProof : Partition (gf1 ⊔ gf2) gf1 gf2 } → 
+        Satisfies g c1 gf1 →
+        Satisfies g c2 gf2 →
+        Satisfies g (c1 * c2) (gf1 ⊔ gf2)
     satisfiesTermEq : {g : Graph } → 
         { gf : GraphFragment } →
         { gfEmptyProof : Empty gf } →
@@ -109,11 +109,11 @@ data Satisfies : Graph → Constraint → GraphFragment → Set where
         { tsWfProof : WellFormedTermSet (terms ts) } →
         { ts2WfProof : WellFormedTermSet (terms (t ∷ ts)) } →
         { c : Constraint } →
-        { gf1 gf2 gf3 : GraphFragment } → 
+        { gf1 gf2 : GraphFragment } → 
         { gf1WfProof : WellFormedness gf1 } →
         { gf2WfProof : WellFormedness gf2 } →
-        { gf3WfProof : WellFormedness gf3 } →
-        { gfPartitionProof : Partition gf1 gf2 gf3 } →
-        Satisfies g (substitute c x t) gf2 →
-        Satisfies g (forallC x (terms ts) c) gf3 →
-        Satisfies g (forallC x (terms (t ∷ ts)) c) gf1
+        { gfDuWfProof : WellFormedness (gf1 ⊔ gf2) } →
+        { gfPartitionProof : Partition (gf1 ⊔ gf2) gf1 gf2 } →
+        Satisfies g (substitute c x t) gf1 →
+        Satisfies g (forallC x (terms ts) c) gf2 →
+        Satisfies g (forallC x (terms (t ∷ ts)) c) (gf1 ⊔ gf2)
