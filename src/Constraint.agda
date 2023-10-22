@@ -104,17 +104,16 @@ data Satisfies : Graph → Constraint → GraphFragment → Set where
         Satisfies g (forallC x ts c) gf
     satisfiesForall : { g : Graph } → 
         { x : String } →
-        { t1 : Term } →
-        { ts ts2 : TermSet } →
-        { tsWfProof : WellFormedTermSet ts } →
-        { ts2WfProof : WellFormedTermSet ts2 } →
-        { tsPartitionProof : PartitionedTermSet ts t1 ts2 } →
+        { t : Term } →
+        { ts : List Term } →
+        { tsWfProof : WellFormedTermSet (terms ts) } →
+        { ts2WfProof : WellFormedTermSet (terms (t ∷ ts)) } →
         { c : Constraint } →
         { gf1 gf2 gf3 : GraphFragment } → 
         { gf1WfProof : WellFormedness gf1 } →
         { gf2WfProof : WellFormedness gf2 } →
         { gf3WfProof : WellFormedness gf3 } →
         { gfPartitionProof : Partition gf1 gf2 gf3 } →
-        Satisfies g (substitute c x t1) gf2 →
-        Satisfies g (forallC x ts2 c) gf3 →
-        Satisfies g (forallC x ts c) gf1
+        Satisfies g (substitute c x t) gf2 →
+        Satisfies g (forallC x (terms ts) c) gf3 →
+        Satisfies g (forallC x (terms (t ∷ ts)) c) gf1

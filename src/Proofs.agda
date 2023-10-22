@@ -71,3 +71,15 @@ forall-empty-satisfied = satisfiesForallEmpty
     { tsEmptyProof = refl } 
     { gfEmptyProof = gf-empty-proof } 
     { gfWfProof = gf-wf-proof }
+
+-- Forall constraint proof
+forall-constraint = forallC "x" (terms ((var "y") ∷ [])) (((var "x") =t= (var "y")))
+
+forall-satisfied : { g : Graph } → { gf : GraphFragment } → Satisfies g forall-constraint gf
+forall-satisfied = satisfiesForall 
+    { tsWfProof = ts-wf-proof } { ts2WfProof = ts-wf-proof }
+    { gf2 = < [] , [] > } { gf3 = < [] , [] > }
+    { gf1WfProof = gf-wf-proof } { gf2WfProof = gf-wf-proof } { gf3WfProof = gf-wf-proof }
+    { gfPartitionProof = gf-partition-proof }
+    (satisfiesTermEq { gfEmptyProof = gf-empty-proof } { gfWfProof = gf-wf-proof }  { termEq = refl } ) 
+    (satisfiesForallEmpty { tsEmptyProof = refl } { gfEmptyProof = gf-empty-proof } { gfWfProof = gf-wf-proof } )
