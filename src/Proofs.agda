@@ -10,9 +10,7 @@ postulate
     gf-wf-proof : { gf : GraphFragment } → WellFormedness gf
     gf-empty-proof : { gf : GraphFragment } → Empty gf
     gf-partition-proof : { gf1 gf2 gf3 : GraphFragment } → Partition gf1 gf2 gf3
-    ts-singleton-proof : { ts : TermSet } → { t : Term } → SingletonTermSet t ts
     ts-wf-proof : { ts : TermSet } → WellFormedTermSet ts
-    ts-empty-proof : { ts : TermSet } → EmptyTermSet ts
     min-ts-proof : { ts ts' : TermSet } → { R : Relation } → ts ≡ minTermSet ts' R
 
 -- Empty constraint proof
@@ -51,7 +49,7 @@ single-constraint = (single (var "x") ( terms ((var "x") ∷ []) ))
 
 single-satisfied : { g : Graph } → { gf : GraphFragment } → {t : Term } → Satisfies g single-constraint gf
 single-satisfied = satisfiesSingle 
-    { tsSingletonProof = ts-singleton-proof } 
+    { tsSingletonProof = refl } 
     { tsWfProof = ts-wf-proof } 
     { gfEmptyProof = gf-empty-proof } 
     { gfWfProof = gf-wf-proof }
@@ -70,6 +68,6 @@ forall-empty-constraint = (forallC "x" (terms []) emp)
 
 forall-empty-satisfied : { g : Graph } → { gf : GraphFragment } → Satisfies g forall-empty-constraint gf
 forall-empty-satisfied = satisfiesForallEmpty 
-    { tsEmptyProof = ts-empty-proof } 
+    { tsEmptyProof = refl } 
     { gfEmptyProof = gf-empty-proof } 
     { gfWfProof = gf-wf-proof }

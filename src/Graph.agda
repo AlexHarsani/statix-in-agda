@@ -30,8 +30,6 @@ record TermSet : Set where
 
 postulate
     Relation : Set
-    EmptyTermSet : TermSet → Set
-    SingletonTermSet : Term → TermSet → Set
     WellFormedTermSet : TermSet → Set
     PartitionedTermSet : TermSet → Term → TermSet → Set
     minTermSet : TermSet → Relation → TermSet

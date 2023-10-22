@@ -79,7 +79,7 @@ data Satisfies : Graph → Constraint → GraphFragment → Set where
     satisfiesSingle : { g : Graph } →
         { t : Term } →
         { ts : TermSet } →
-        { tsSingletonProof : SingletonTermSet t ts } →
+        { tsSingletonProof : ts ≡ (terms (t ∷ [])) } →
         { tsWfProof : WellFormedTermSet ts } →
         { gf : GraphFragment } →
         { gfEmptyProof : Empty gf } →
@@ -96,7 +96,7 @@ data Satisfies : Graph → Constraint → GraphFragment → Set where
     satisfiesForallEmpty : { g : Graph } → 
         { x : String } →
         { ts : TermSet } →
-        { tsEmptyProof : EmptyTermSet ts } →
+        { tsEmptyProof : ts ≡ (terms []) } →
         { c : Constraint } →
         { gf : GraphFragment } →
         { gfEmptyProof : Empty gf } →
