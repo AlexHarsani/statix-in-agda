@@ -12,6 +12,7 @@ postulate
     gf-partition-proof : { gf1 gf2 gf3 : GraphFragment } → Partition gf1 gf2 gf3
     ts-singleton-proof : { ts : TermSet } → { t : Term } → SingletonTermSet t ts
     ts-wf-proof : { ts : TermSet } → WellFormedTermSet ts
+    ts-empty-proof : { ts : TermSet } → EmptyTermSet ts
     min-ts-proof : { ts ts' : TermSet } → { R : Relation } → ts ≡ minTermSet ts' R
 
 
@@ -43,3 +44,9 @@ single-satisfied = satisfiesSingle
 
 min-satisfied : { g : Graph } → { gf : GraphFragment } → { R : Relation } → Satisfies g (min (terms ((var "x") ∷ [])) R (terms ((var "x") ∷ []))) gf
 min-satisfied = satisfiesMin { gfEmptyProof = gf-empty-proof } { gfWfProof = gf-wf-proof } { termSetEq = min-ts-proof }
+
+forall-empty-satisfied : { g : Graph } → { gf : GraphFragment } → Satisfies g (forallC "x" (terms []) emp) gf
+forall-empty-satisfied = satisfiesForallEmpty 
+    { tsEmptyProof = ts-empty-proof } 
+    { gfEmptyProof = gf-empty-proof } 
+    { gfWfProof = gf-wf-proof }
