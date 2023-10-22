@@ -15,37 +15,60 @@ postulate
     ts-empty-proof : { ts : TermSet } → EmptyTermSet ts
     min-ts-proof : { ts ts' : TermSet } → { R : Relation } → ts ≡ minTermSet ts' R
 
+-- Empty constraint proof
+emp-constraint = emp
 
-emp-satisfied : { g : Graph } → { gf : GraphFragment } → Satisfies g emp gf
+emp-satisfied : { g : Graph } → { gf : GraphFragment } → Satisfies g emp-constraint gf
 emp-satisfied = satisfiesEmpty { gfEmptyProof = gf-empty-proof } { gfWfProof = gf-wf-proof }
 
-compound-satisfied : { g : Graph } → { gf : GraphFragment } → Satisfies g (emp * emp) gf
+-- Compound constraint proof
+compound-constraint = (emp * emp)
+
+compound-satisfied : { g : Graph } → { gf : GraphFragment } → Satisfies g compound-constraint gf
 compound-satisfied = satisfiesCompound
     { gf2 = < [] , [] > } {gf3 = < [] , [] > }
     {gf1WfProof = gf-wf-proof} {gf2WfProof = gf-wf-proof} {gf3WfProof = gf-wf-proof} 
     {gfPartitionProof = gf-partition-proof} 
     emp-satisfied emp-satisfied
 
-term-eq-satisfied : { g : Graph } → { gf : GraphFragment } → Satisfies g ((var "x") =t= (var "x")) gf
+-- Term equality constraint proof
+term-eq-constraint = ((var "x") =t= (var "x"))
+
+term-eq-satisfied : { g : Graph } → { gf : GraphFragment } → Satisfies g term-eq-constraint gf
 term-eq-satisfied = satisfiesTermEq { gfEmptyProof = gf-empty-proof } { gfWfProof = gf-wf-proof } { termEq = refl }
 
-exists-satisfied : { g : Graph } → { gf : GraphFragment } → Satisfies g (existsC "x" ((var "x") =t= (var "y"))) gf
+-- Exists constraint proof
+exists-constraint = (existsC "x" ((var "x") =t= (var "y")))
+
+exists-satisfied : { g : Graph } → { gf : GraphFragment } → Satisfies g exists-constraint gf
 exists-satisfied = satisfiesExists 
     { gfWfProof = gf-wf-proof } 
     { t = (var "y") } 
     (satisfiesTermEq { gfEmptyProof = gf-empty-proof } { gfWfProof = gf-wf-proof } { termEq = refl })
 
-single-satisfied : { g : Graph } → { gf : GraphFragment } → {t : Term } → Satisfies g (single (var "x") ( terms ((var "x") ∷ []) )) gf
+-- Single constraint proof
+single-constraint = (single (var "x") ( terms ((var "x") ∷ []) ))
+
+single-satisfied : { g : Graph } → { gf : GraphFragment } → {t : Term } → Satisfies g single-constraint gf
 single-satisfied = satisfiesSingle 
     { tsSingletonProof = ts-singleton-proof } 
     { tsWfProof = ts-wf-proof } 
     { gfEmptyProof = gf-empty-proof } 
     { gfWfProof = gf-wf-proof }
 
-min-satisfied : { g : Graph } → { gf : GraphFragment } → { R : Relation } → Satisfies g (min (terms ((var "x") ∷ [])) R (terms ((var "x") ∷ []))) gf
+-- Min constraint proof
+postulate
+    R : Relation
+    
+min-constraint = (min (terms ((var "x") ∷ [])) R (terms ((var "x") ∷ [])))
+
+min-satisfied : { g : Graph } → { gf : GraphFragment } → Satisfies g min-constraint gf
 min-satisfied = satisfiesMin { gfEmptyProof = gf-empty-proof } { gfWfProof = gf-wf-proof } { termSetEq = min-ts-proof }
 
-forall-empty-satisfied : { g : Graph } → { gf : GraphFragment } → Satisfies g (forallC "x" (terms []) emp) gf
+-- Forall empty proof
+forall-empty-constraint = (forallC "x" (terms []) emp)
+
+forall-empty-satisfied : { g : Graph } → { gf : GraphFragment } → Satisfies g forall-empty-constraint gf
 forall-empty-satisfied = satisfiesForallEmpty 
     { tsEmptyProof = ts-empty-proof } 
     { gfEmptyProof = gf-empty-proof } 
