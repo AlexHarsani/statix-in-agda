@@ -25,17 +25,25 @@ data Constraint : Set where
     -- forall
     forallC : String → TermSet → Constraint → Constraint
 
+-- termination checker fails on compound term, 
+-- therefore the TERMINATING pragma
+{-# TERMINATING #-}
 replaceTerm : Term → String → Term → Term
-replaceTerm (var y) x t2 with (x ≟ y) 
-... | yes _ = t2
-... | no _ = (var y)
-replaceTerm t1 x t2 = t1
+replaceTerm newTerm x oldTerm@(var y) with (x ≟ y)
+... | yes _ = newTerm
+... | no _ = oldTerm
+replaceTerm newTerm x (compound f ts) = compound f (map (replaceTerm newTerm x) ts)
+replaceTerm newTerm x oldTerm = oldTerm
 
 substitute : Constraint → String → Term → Constraint
+substitute emp x t = emp
+substitute false x t = false
 substitute (c1 * c2) x t = substitute c1 x t * substitute c2 x t
-substitute (t1 =t= t2) x t = (replaceTerm t1 x t) =t= (replaceTerm t2 x t)
+substitute (t1 =t= t2) x t = (replaceTerm t x t1) =t= (replaceTerm t x t2)
 substitute (existsC y c) x t = existsC y (substitute c x t)
-substitute c t x = c
+substitute (single t1 (terms ts)) x t2 = single (replaceTerm t2 x t1) (terms (map (replaceTerm t2 x) ts))
+substitute (min (terms ts1) R (terms ts2)) x t = min ((terms (map (replaceTerm t x) ts1))) R (((terms (map (replaceTerm t x) ts2))))
+substitute (forallC y (terms ts) c) x t = forallC y ((terms (map ((replaceTerm t x)) ts))) c
 
 data Satisfies : Graph → Constraint → GraphFragment → Set where
     satisfiesEmpty : { g : Graph } → 
