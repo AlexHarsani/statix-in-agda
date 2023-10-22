@@ -24,6 +24,7 @@ data Term : Set where
 
 -- Scope graph term set
 record TermSet : Set where
+    constructor terms_
     field
         terms : List Term
 
