@@ -26,7 +26,8 @@ compound-satisfied : { g : Graph } → { gf1 gf2 : GraphFragment } → Satisfies
 compound-satisfied = satisfiesCompound
     {gf1WfProof = gf-wf-proof} {gf2WfProof = gf-wf-proof} {gfDuWfProof = gf-wf-proof} 
     {gfPartitionProof = gf-partition-proof} 
-    emp-satisfied emp-satisfied
+    (satisfiesEmpty { gfEmptyProof = gf-empty-proof } { gfWfProof = gf-wf-proof }) 
+    (satisfiesEmpty { gfEmptyProof = gf-empty-proof } { gfWfProof = gf-wf-proof })
 
 -- Term equality constraint proof
 term-eq-constraint = ((var "x") =t= (var "x"))
