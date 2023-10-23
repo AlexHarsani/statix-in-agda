@@ -25,15 +25,17 @@ data Constraint : Set where
     -- forall
     forallC : String → TermSet → Constraint → Constraint
 
--- termination checker fails on compound term, 
--- therefore the TERMINATING pragma
-{-# TERMINATING #-}
-replaceTerm : Term → String → Term → Term
-replaceTerm newTerm x oldTerm@(var y) with (x ≟ y)
-... | yes _ = newTerm
-... | no _ = oldTerm
-replaceTerm newTerm x (compound f ts) = compound f (map (replaceTerm newTerm x) ts)
-replaceTerm newTerm x oldTerm = oldTerm
+mutual
+    mapReplaceTerm : String → Term → List Term → List Term
+    mapReplaceTerm x newTerm (t ∷ ts) = (replaceTerm newTerm x t) ∷ mapReplaceTerm x newTerm ts
+    mapReplaceTerm _ _ [] = []
+
+    replaceTerm : Term → String → Term → Term
+    replaceTerm newTerm x oldTerm@(var y) with (x ≟ y)
+    ... | yes _ = newTerm
+    ... | no _ = oldTerm
+    replaceTerm newTerm x (compound f ts) = compound f (mapReplaceTerm x newTerm ts)
+    replaceTerm newTerm x oldTerm = oldTerm
 
 substitute : Constraint → String → Term → Constraint
 substitute emp x t = emp
