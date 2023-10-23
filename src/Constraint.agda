@@ -46,10 +46,14 @@ substitute emp x t = emp
 substitute false x t = false
 substitute (c1 * c2) x t = substitute c1 x t * substitute c2 x t
 substitute (t1 =t= t2) x t = (replaceTerm t x t1) =t= (replaceTerm t x t2)
-substitute (existsC y c) x t = existsC y (substitute c x t)
 substitute (single t1 (terms ts)) x t2 = single (replaceTerm t2 x t1) (terms (map (replaceTerm t2 x) ts))
 substitute (min (terms ts1) R (terms ts2)) x t = min ((terms (map (replaceTerm t x) ts1))) R (((terms (map (replaceTerm t x) ts2))))
-substitute (forallC y (terms ts) c) x t = forallC y ((terms (map ((replaceTerm t x)) ts))) c
+substitute (existsC y c) x t with (x ≟ y)
+... | yes _ = existsC y c
+... | no _ = existsC y (substitute c x t)
+substitute (forallC y (terms ts) c) x t with (x ≟ y)
+... | yes _ = forallC y (terms ts) c
+... | no _ = forallC y ((terms (map ((replaceTerm t x)) ts))) (substitute c x t)
 
 -- Constraint satisfiability based on figure 7 of Knowing When to Ask
 data Satisfies : Graph → Constraint → GraphFragment → Set where
