@@ -29,9 +29,13 @@ record TermSet : Set where
         terms : List Term
 
 postulate
+    -- relation for min constraint
     Relation : Set
+    -- well-formedness property means, that there are
+    -- no duplicate values in term set
     WellFormedTermSet : TermSet → Set
-    PartitionedTermSet : TermSet → Term → TermSet → Set
+    -- least reaching path, as defined in Knowing When to Ask, page 11
+    -- this is necessary for min constraint
     minTermSet : TermSet → Relation → TermSet
 
 -- Scope graph
@@ -49,11 +53,12 @@ record GraphFragment : Set where
         edges : List Edge
 
 postulate
-    -- proof that graph fragment is empty
+    -- property that the graph fragment is empty
     Empty : GraphFragment → Set
-    -- proof that graph fragment is well formed
+    -- property that the graph fragment is well formed,
+    -- which means, that there are no duplicate nodes and edges
     WellFormedness : GraphFragment → Set
-    -- proof that second and third graph fragment are partition of the first graph fragment
+    -- property that second and third graph fragment are partition of the first graph fragment
     Partition : GraphFragment → GraphFragment → GraphFragment → Set
     -- disjoint union of two graph fragments
     _⊔_ : GraphFragment → GraphFragment → GraphFragment

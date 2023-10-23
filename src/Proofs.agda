@@ -6,6 +6,8 @@ open import Relation.Binary.PropositionalEquality
 open import Constraint L
 open import Graph L
 
+-- Some concrete examples of proving constraint satisfiability
+
 postulate
     gf-wf-proof : { gf : GraphFragment } → WellFormedness gf
     gf-empty-proof : { gf : GraphFragment } → Empty gf

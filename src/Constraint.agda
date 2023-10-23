@@ -7,6 +7,7 @@ open import Relation.Binary.PropositionalEquality
 
 open import Graph L
 
+-- Constraints syntax based on figure 6 of Knowing When to Ask
 data Constraint : Set where
     -- true
     emp : Constraint
@@ -26,10 +27,12 @@ data Constraint : Set where
     forallC : String → TermSet → Constraint → Constraint
 
 mutual
+    -- helper function for replace term, used for compound terms
     mapReplaceTerm : String → Term → List Term → List Term
     mapReplaceTerm x newTerm (t ∷ ts) = (replaceTerm newTerm x t) ∷ mapReplaceTerm x newTerm ts
     mapReplaceTerm _ _ [] = []
 
+    -- Replaces quantified variables by new term
     replaceTerm : Term → String → Term → Term
     replaceTerm newTerm x oldTerm@(var y) with (x ≟ y)
     ... | yes _ = newTerm
@@ -37,6 +40,7 @@ mutual
     replaceTerm newTerm x (compound f ts) = compound f (mapReplaceTerm x newTerm ts)
     replaceTerm newTerm x oldTerm = oldTerm
 
+-- Substitute function for exists and forall constraints
 substitute : Constraint → String → Term → Constraint
 substitute emp x t = emp
 substitute false x t = false
@@ -47,12 +51,15 @@ substitute (single t1 (terms ts)) x t2 = single (replaceTerm t2 x t1) (terms (ma
 substitute (min (terms ts1) R (terms ts2)) x t = min ((terms (map (replaceTerm t x) ts1))) R (((terms (map (replaceTerm t x) ts2))))
 substitute (forallC y (terms ts) c) x t = forallC y ((terms (map ((replaceTerm t x)) ts))) c
 
+-- Constraint satisfiability based on figure 7 of Knowing When to Ask
 data Satisfies : Graph → Constraint → GraphFragment → Set where
+    -- EMP
     satisfiesEmpty : { g : Graph } → 
         { gf : GraphFragment } →
         { gfEmptyProof : Empty gf } →
         { gfWfProof : WellFormedness gf } → 
         Satisfies g emp gf
+    -- CONJ
     satisfiesCompound : { g : Graph } → 
         { c1 c2 : Constraint } → 
         { gf1 gf2 : GraphFragment } → 
@@ -63,6 +70,7 @@ data Satisfies : Graph → Constraint → GraphFragment → Set where
         Satisfies g c1 gf1 →
         Satisfies g c2 gf2 →
         Satisfies g (c1 * c2) (gf1 ⊔ gf2)
+    -- EQ
     satisfiesTermEq : {g : Graph } → 
         { gf : GraphFragment } →
         { gfEmptyProof : Empty gf } →
@@ -70,6 +78,7 @@ data Satisfies : Graph → Constraint → GraphFragment → Set where
         { t1 t2 : Term } →
         { termEq : t1 ≡ t2 } →
         Satisfies g (t1 =t= t2) gf
+    -- EXISTS
     satisfiesExists : { g : Graph } → 
         { c : Constraint } → 
         { x : String } → 
@@ -78,6 +87,7 @@ data Satisfies : Graph → Constraint → GraphFragment → Set where
         { t : Term } →
         Satisfies g (substitute c x t) gf →
         Satisfies g (existsC x c) gf
+    -- SINGLETON
     satisfiesSingle : { g : Graph } →
         { t : Term } →
         { ts : TermSet } →
@@ -87,6 +97,7 @@ data Satisfies : Graph → Constraint → GraphFragment → Set where
         { gfEmptyProof : Empty gf } →
         { gfWfProof : WellFormedness gf } →
         Satisfies g (single t ts) gf
+    -- MIN
     satisfiesMin : { g : Graph } → 
         { t t' : TermSet } →
         { R : Relation } →
@@ -95,6 +106,7 @@ data Satisfies : Graph → Constraint → GraphFragment → Set where
         { gfWfProof : WellFormedness gf } → 
         { termSetEq : t' ≡ minTermSet t R } →
         Satisfies g (min t R t') gf
+    -- FORALL-EMPTY
     satisfiesForallEmpty : { g : Graph } → 
         { x : String } →
         { ts : TermSet } →
@@ -104,6 +116,7 @@ data Satisfies : Graph → Constraint → GraphFragment → Set where
         { gfEmptyProof : Empty gf } →
         { gfWfProof : WellFormedness gf } → 
         Satisfies g (forallC x ts c) gf
+    -- FORALL
     satisfiesForall : { g : Graph } → 
         { x : String } →
         { t : Term } →
