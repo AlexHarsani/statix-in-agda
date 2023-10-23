@@ -38,7 +38,7 @@ term-eq-satisfied : { g : Graph } → { gf : GraphFragment } → Satisfies g ter
 term-eq-satisfied = satisfiesTermEq { gfEmptyProof = gf-empty-proof } { gfWfProof = gf-wf-proof } { termEq = refl }
 
 -- Exists constraint proof
-exists-constraint = (existsC "x" ((var "x") =t= (var "y")))
+exists-constraint = (existsT "x" ((var "x") =t= (var "y")))
 
 exists-satisfied : { g : Graph } → { gf : GraphFragment } → Satisfies g exists-constraint gf
 exists-satisfied = satisfiesExists 
@@ -66,7 +66,7 @@ min-satisfied : { g : Graph } → { gf : GraphFragment } → Satisfies g min-con
 min-satisfied = satisfiesMin { gfEmptyProof = gf-empty-proof } { gfWfProof = gf-wf-proof } { termSetEq = min-ts-proof }
 
 -- Forall empty proof
-forall-empty-constraint = (forallC "x" (terms []) emp)
+forall-empty-constraint = (forallT "x" (terms []) emp)
 
 forall-empty-satisfied : { g : Graph } → { gf : GraphFragment } → Satisfies g forall-empty-constraint gf
 forall-empty-satisfied = satisfiesForallEmpty 
@@ -75,7 +75,7 @@ forall-empty-satisfied = satisfiesForallEmpty
     { gfWfProof = gf-wf-proof }
 
 -- Forall constraint proof
-forall-constraint = forallC "x" (terms ((var "y") ∷ [])) (((var "x") =t= (var "y")))
+forall-constraint = forallT "x" (terms ((var "y") ∷ [])) (((var "x") =t= (var "y")))
 
 forall-satisfied : { g : Graph } → { gf1 gf2 : GraphFragment } → Satisfies g forall-constraint (gf1 ⊔ gf2)
 forall-satisfied = satisfiesForall 

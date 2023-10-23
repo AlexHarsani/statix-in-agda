@@ -18,13 +18,13 @@ data Constraint : Set where
     -- term equality
     _=t=_ : Term → Term → Constraint
     -- existential quantification
-    existsC : String → Constraint → Constraint
+    existsT : String → Constraint → Constraint
     -- set singletons
     single : Term → TermSet → Constraint
     -- minimum
     min : TermSet → Relation → TermSet → Constraint
     -- forall
-    forallC : String → TermSet → Constraint → Constraint
+    forallT : String → TermSet → Constraint → Constraint
 
 mutual
     -- helper function for replace term, used for compound terms
@@ -48,12 +48,12 @@ substitute (c1 * c2) x t = substitute c1 x t * substitute c2 x t
 substitute (t1 =t= t2) x t = (replaceTerm t x t1) =t= (replaceTerm t x t2)
 substitute (single t1 (terms ts)) x t2 = single (replaceTerm t2 x t1) (terms (map (replaceTerm t2 x) ts))
 substitute (min (terms ts1) R (terms ts2)) x t = min ((terms (map (replaceTerm t x) ts1))) R (((terms (map (replaceTerm t x) ts2))))
-substitute (existsC y c) x t with (x ≟ y)
-... | yes _ = existsC y c
-... | no _ = existsC y (substitute c x t)
-substitute (forallC y (terms ts) c) x t with (x ≟ y)
-... | yes _ = forallC y (terms ts) c
-... | no _ = forallC y ((terms (map ((replaceTerm t x)) ts))) (substitute c x t)
+substitute (existsT y c) x t with (x ≟ y)
+... | yes _ = existsT y c
+... | no _ = existsT y (substitute c x t)
+substitute (forallT y (terms ts) c) x t with (x ≟ y)
+... | yes _ = forallT y (terms ts) c
+... | no _ = forallT y ((terms (map ((replaceTerm t x)) ts))) (substitute c x t)
 
 -- Constraint satisfiability based on figure 7 of Knowing When to Ask
 data Satisfies : Graph → Constraint → GraphFragment → Set where
@@ -90,7 +90,7 @@ data Satisfies : Graph → Constraint → GraphFragment → Set where
         { gfWfProof : WellFormedness gf }
         { t : Term } →
         Satisfies g (substitute c x t) gf →
-        Satisfies g (existsC x c) gf
+        Satisfies g (existsT x c) gf
     -- SINGLETON
     satisfiesSingle : { g : Graph } →
         { t : Term } →
@@ -119,7 +119,7 @@ data Satisfies : Graph → Constraint → GraphFragment → Set where
         { gf : GraphFragment } →
         { gfEmptyProof : Empty gf } →
         { gfWfProof : WellFormedness gf } → 
-        Satisfies g (forallC x ts c) gf
+        Satisfies g (forallT x ts c) gf
     -- FORALL
     satisfiesForall : { g : Graph } → 
         { x : String } →
@@ -134,5 +134,5 @@ data Satisfies : Graph → Constraint → GraphFragment → Set where
         { gfDuWfProof : WellFormedness (gf1 ⊔ gf2) } →
         { gfPartitionProof : Partition (gf1 ⊔ gf2) gf1 gf2 } →
         Satisfies g (substitute c x t) gf1 →
-        Satisfies g (forallC x (terms ts) c) gf2 →
-        Satisfies g (forallC x (terms (t ∷ ts)) c) (gf1 ⊔ gf2)
+        Satisfies g (forallT x (terms ts) c) gf2 →
+        Satisfies g (forallT x (terms (t ∷ ts)) c) (gf1 ⊔ gf2)
