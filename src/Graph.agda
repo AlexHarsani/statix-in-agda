@@ -1,6 +1,6 @@
 module Graph (L : Set) where
 
-open import Data.String hiding (_++_)
+open import Data.String
 open import Data.List
 
 -- Scope graph node
@@ -58,7 +58,8 @@ postulate
     -- property that the graph fragment is well formed,
     -- which means, that there are no duplicate nodes and edges
     WellFormedness : GraphFragment → Set
-    -- property that second and third graph fragment are partition of the first graph fragment
+    -- property that second and third graph fragment are a valid partition 
+    -- of the first graph fragment
     Partition : GraphFragment → GraphFragment → GraphFragment → Set
     -- disjoint union of two graph fragments
     _⊔_ : GraphFragment → GraphFragment → GraphFragment

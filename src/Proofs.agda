@@ -8,6 +8,8 @@ open import Graph L
 
 -- Some concrete examples of proving constraint satisfiability
 
+-- Some axioms for properties defined in Graph.adga,
+-- that are necessary for proofs of satisfiability.
 postulate
     gf-wf-proof : { gf : GraphFragment } → WellFormedness gf
     gf-empty-proof : { gf : GraphFragment } → Empty gf
@@ -57,6 +59,7 @@ single-satisfied = satisfiesSingle
     { gfWfProof = gf-wf-proof }
 
 -- Min constraint proof
+-- preorder relation as specified on page 11 of Knowing When to Ask 
 postulate
     R : Relation
     
