@@ -26,9 +26,10 @@ emp-satisfied = satisfiesEmpty { gfEmptyProof = gf-empty-proof } { gfWfProof = g
 -- Compound constraint proof
 compound-constraint = (emp * emp)
 
-compound-satisfied : { g : Graph } → { gf1 gf2 : GraphFragment } → Satisfies g compound-constraint (gf1 ⊔ gf2)
+compound-satisfied : { g : Graph } → { gf : GraphFragment } → Satisfies g compound-constraint gf
 compound-satisfied = satisfiesCompound
-    {gf1WfProof = gf-wf-proof} {gf2WfProof = gf-wf-proof} {gfDuWfProof = gf-wf-proof} 
+    { gf1 = < [] , [] >} { gf2 = < [] , [] >}
+    {gf1WfProof = gf-wf-proof} {gf2WfProof = gf-wf-proof} {gf3WfProof = gf-wf-proof} 
     {gfPartitionProof = gf-partition-proof} 
     (satisfiesEmpty { gfEmptyProof = gf-empty-proof } { gfWfProof = gf-wf-proof }) 
     (satisfiesEmpty { gfEmptyProof = gf-empty-proof } { gfWfProof = gf-wf-proof })
@@ -80,10 +81,11 @@ forall-empty-satisfied = satisfiesForallEmpty
 -- Forall constraint proof
 forall-constraint = forallT "x" (terms ((var "y") ∷ [])) (((var "x") =t= (var "y")))
 
-forall-satisfied : { g : Graph } → { gf1 gf2 : GraphFragment } → Satisfies g forall-constraint (gf1 ⊔ gf2)
-forall-satisfied = satisfiesForall 
+forall-satisfied : { g : Graph } → { gf : GraphFragment } → Satisfies g forall-constraint gf
+forall-satisfied = satisfiesForall
     { tsWfProof = ts-wf-proof } { ts2WfProof = ts-wf-proof }
-    { gf1WfProof = gf-wf-proof } { gf2WfProof = gf-wf-proof } { gfDuWfProof = gf-wf-proof }
+    { gf1 = < [] , [] >} { gf2 = < [] , [] >}
+    { gf1WfProof = gf-wf-proof } { gf2WfProof = gf-wf-proof } { gf3WfProof = gf-wf-proof }
     { gfPartitionProof = gf-partition-proof }
     (satisfiesTermEq { gfEmptyProof = gf-empty-proof } { gfWfProof = gf-wf-proof }  { termEq = refl } ) 
     (satisfiesForallEmpty { tsEmptyProof = refl } { gfEmptyProof = gf-empty-proof } { gfWfProof = gf-wf-proof } )

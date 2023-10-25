@@ -61,5 +61,3 @@ postulate
     -- property that second and third graph fragment are a valid partition 
     -- of the first graph fragment
     Partition : GraphFragment → GraphFragment → GraphFragment → Set
-    -- disjoint union of two graph fragments
-    _⊔_ : GraphFragment → GraphFragment → GraphFragment

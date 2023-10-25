@@ -34,7 +34,6 @@ The project is structured in the following way:
     - `Empty`: this property states that graph fragment is empty
     - `WellFormedness`: this property states that graph is well formed, which means that there are no duplicate values of nodes and edges
     - `Partition`: this property states that two graph fragments are a partition of a larger graph fragment
-    - `_⊔_`: this operator represents the disjoint union of graph fragments
 
 ### Constraint
 
