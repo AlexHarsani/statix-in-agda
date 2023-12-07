@@ -1,4 +1,4 @@
-module SimpleTypeSystem (Label : Set) where
+module SimpleTypeSystemFunction (Label : Set) where
 
 open import Agda.Primitive
 open import Data.Bool
@@ -7,6 +7,9 @@ open import Data.Nat hiding (_+_ ; _*_)
 open import Data.Product hiding (<_,_>)
 open import Data.Unit
 open import Relation.Binary.PropositionalEquality
+
+open import Graph Label
+open import Constraint Label
 
 data Expr : Set  where
     numLit : ℕ → Expr
@@ -18,13 +21,6 @@ data Expr : Set  where
 data Type : Set where
     bool : Type
     num : Type
-
-data Term : Set where
-    expr : Expr → Term
-    ty : Type → Term
-
-open import Graph Label
-open import Constraint Label
 
 typeOfExpression : Expr → Type → Constraint
 typeOfExpression (numLit n) t = Eq num t
@@ -38,7 +34,6 @@ typeOfExpression (if' cond then e1 else e2) t = typeOfExpression cond bool *
 
 
 -- Type check examples
-
 graphFragment : GraphFragment {Type}
 graphFragment = < [] , [] >
 
@@ -71,4 +66,3 @@ typeCheckExpression3 =
     (refl , refl) 
     ⟨ refl ⟩ 
     ((refl , refl) ⟨ refl ⟩ (refl , {!   !}))
-
