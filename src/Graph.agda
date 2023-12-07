@@ -1,4 +1,4 @@
-module Graph (Label : Set) (Term : Set) where
+module Graph (Label : Set) {Term : Set} where
 
 open import Data.List
 open import Data.String hiding (_++_)

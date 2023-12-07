@@ -1,4 +1,4 @@
-module Constraint (Label : Set) (Term : Set) where
+module Constraint (Label : Set) {Term : Set} where
 
 open import Data.Empty
 open import Data.List
@@ -6,7 +6,7 @@ open import Data.Product hiding (<_,_>)
 open import Data.Unit
 open import Relation.Binary.PropositionalEquality
 
-open import Graph Label Term
+open import Graph Label {Term}
 
 Constraint = GraphFragment → Set
 

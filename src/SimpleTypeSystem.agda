@@ -9,9 +9,10 @@ open import Data.Unit
 open import Relation.Binary.PropositionalEquality
 
 data Expr : Set  where
-    num : ℕ → Expr
-    bool : Bool → Expr
+    numLit : ℕ → Expr
+    boolLit : Bool → Expr
     _+_ : Expr → Expr → Expr
+    _>'_ : Expr → Expr → Expr
     if'_then_else_ : Expr → Expr → Expr → Expr
 
 data Type : Set where
@@ -22,41 +23,52 @@ data Term : Set where
     expr : Expr → Term
     ty : Type → Term
 
-open import Graph Label Term
-open import Constraint Label Term
+open import Graph Label
+open import Constraint Label
 
-typeOfExpression : Term → Term → Constraint
-typeOfExpression (expr (num n)) t = Eq (ty num) t
-typeOfExpression (expr (bool b)) t = Eq (ty bool) t
-typeOfExpression (expr (e1 + e2)) t = Eq (ty num) t * 
-    (typeOfExpression (expr e1) (ty num) * typeOfExpression (expr e2) (ty num))
-typeOfExpression (expr (if' cond then e1 else e2)) t = typeOfExpression (expr cond) (ty bool) * 
-    (typeOfExpression (expr e1) t * typeOfExpression (expr e2) t)
-typeOfExpression e t = False
+typeOfExpression : Expr → Type → Constraint
+typeOfExpression (numLit n) t = Eq num t
+typeOfExpression (boolLit b) t = Eq bool t
+typeOfExpression (e1 + e2) t = Eq num t * 
+    (typeOfExpression e1 num * typeOfExpression e2 num)
+typeOfExpression (e1 >' e2) t = Eq bool t * 
+    (typeOfExpression e1 num * typeOfExpression e2 num)
+typeOfExpression (if' cond then e1 else e2) t = typeOfExpression cond bool * 
+    (typeOfExpression e1 t * typeOfExpression e2 t)
 
 
 -- Type check examples
 
+graphFragment : GraphFragment {Type}
 graphFragment = < [] , [] >
 
 -- Example 1
-expr1 = expr ((num 1) + (num 2))
-ty1 = ty num
+expr1 = (numLit 1) + (numLit 2)
+ty1 = num
 
 typeCheckExpression1 : typeOfExpression expr1 ty1 graphFragment
-typeCheckExpression1 = (refl , refl) ⟨ refl ⟩ ((refl , refl) ⟨ refl ⟩ (refl , refl))
+typeCheckExpression1 = 
+    (refl , refl) 
+    ⟨ refl ⟩ 
+    ((refl , refl) ⟨ refl ⟩ (refl , refl))
 
 -- Example 2
-expr2 = expr (if' (bool true) then ((num 1) + (num 2)) else (num 1))
-ty2 = ty num
+expr2 = if' ((numLit 3) >' (numLit 2)) then ((numLit 1) + (numLit 2)) else (numLit 1)
+ty2 = num
 
 typeCheckExpression2 : typeOfExpression expr2 ty2 graphFragment
-typeCheckExpression2 = (refl , refl) ⟨ refl ⟩ (typeCheckExpression1 ⟨ refl ⟩ (refl , refl))
+typeCheckExpression2 = 
+    ((refl , refl) ⟨ refl ⟩ ((refl , refl) ⟨ refl ⟩ (refl , refl)))
+    ⟨ refl ⟩ 
+    (typeCheckExpression1 ⟨ refl ⟩ (refl , refl))
 
--- Example 3, does not type check
-expr3 = expr ((num 1) + (bool true))
-ty3 = ty num
+-- -- Example 3, does not type check
+expr3 = (numLit 1) + (boolLit true)
+ty3 = num
 
 typeCheckExpression3 : typeOfExpression expr3 ty3 graphFragment
-typeCheckExpression3 = (refl , refl) ⟨ refl ⟩ ((refl , refl) ⟨ refl ⟩ (refl , {!   !}))
+typeCheckExpression3 = 
+    (refl , refl) 
+    ⟨ refl ⟩ 
+    ((refl , refl) ⟨ refl ⟩ (refl , {!   !}))
 
