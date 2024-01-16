@@ -8,7 +8,7 @@ open import Data.Product hiding (<_,_>)
 open import Data.Unit
 open import Relation.Binary.PropositionalEquality
 
-open import Graph Label
+open import ScopeGraph Label
 open import Constraint Label
 
 data Expr : Set  where
@@ -34,14 +34,14 @@ typeOfExpression (if' cond then e1 else e2) t = typeOfExpression cond bool *
 
 
 -- Type check examples
-graphFragment : GraphFragment {Type}
+graphFragment : ScopeGraphFragment {Type}
 graphFragment = < [] , [] >
 
 -- Example 1
 expr1 = (numLit 1) + (numLit 2)
 ty1 = num
 
-typeCheckExpression1 : typeOfExpression expr1 ty1 graphFragment
+typeCheckExpression1 : {G : ScopeGraph} → typeOfExpression expr1 ty1 G graphFragment
 typeCheckExpression1 = 
     (refl , refl) 
     ⟨ refl ⟩ 
@@ -51,18 +51,9 @@ typeCheckExpression1 =
 expr2 = if' ((numLit 3) >' (numLit 2)) then ((numLit 1) + (numLit 2)) else (numLit 1)
 ty2 = num
 
-typeCheckExpression2 : typeOfExpression expr2 ty2 graphFragment
+typeCheckExpression2 : {G : ScopeGraph} → typeOfExpression expr2 ty2 G graphFragment
 typeCheckExpression2 = 
     ((refl , refl) ⟨ refl ⟩ ((refl , refl) ⟨ refl ⟩ (refl , refl)))
     ⟨ refl ⟩ 
     (typeCheckExpression1 ⟨ refl ⟩ (refl , refl))
 
--- -- Example 3, does not type check
-expr3 = (numLit 1) + (boolLit true)
-ty3 = num
-
-typeCheckExpression3 : typeOfExpression expr3 ty3 graphFragment
-typeCheckExpression3 = 
-    (refl , refl) 
-    ⟨ refl ⟩ 
-    ((refl , refl) ⟨ refl ⟩ (refl , {!   !}))

@@ -8,7 +8,7 @@ open import Data.Product hiding (<_,_>)
 open import Data.Unit
 open import Relation.Binary.PropositionalEquality
 
-open import Graph Label
+open import ScopeGraph Label
 open import Constraint Label
 
 data Expr : Set  where
@@ -23,30 +23,30 @@ data Type : Set where
     num : Type
 
 data TypeOfExpression : Expr → Type → Constraint where
-    typeOfExpressionNum : { n : ℕ } → { t : Type } → { gf : GraphFragment } →
-        Eq num t gf → TypeOfExpression (numLit n) t gf
-    typeOfExpressionBool : { b : Bool } → { t : Type } → { gf : GraphFragment } →
-        Eq bool t gf → TypeOfExpression (boolLit b) t gf
-    typeOfExpressionAdd : { e1 e2 : Expr } → { t : Type } → { gf : GraphFragment } →
-        (Eq num t * (TypeOfExpression e1 num * TypeOfExpression e2 num)) gf →
-        TypeOfExpression (e1 + e2) t gf
-    typeOfExpressionLess : { e1 e2 : Expr } → { t : Type } → { gf : GraphFragment } →
-        (Eq bool t * (TypeOfExpression e1 num * TypeOfExpression e2 num)) gf →
-        TypeOfExpression (e1 >' e2) t gf
-    typeOfExpressionIf : { cond e1 e2 : Expr } → { t : Type } → { gf : GraphFragment } →
-        (TypeOfExpression cond bool * (TypeOfExpression e1 t * TypeOfExpression e2 t)) gf →
-        TypeOfExpression (if' cond then e1 else e2) t gf
+    typeOfExpressionNum : { G : ScopeGraph } → { n : ℕ } → { t : Type } → { gf : ScopeGraphFragment } →
+        Eq num t G gf → TypeOfExpression (numLit n) t G gf
+    typeOfExpressionBool : { G : ScopeGraph } → { b : Bool } → { t : Type } → { gf : ScopeGraphFragment } →
+        Eq bool t G gf → TypeOfExpression (boolLit b) t G gf
+    typeOfExpressionAdd : { G : ScopeGraph } → { e1 e2 : Expr } → { t : Type } → { gf : ScopeGraphFragment } →
+        (Eq num t * (TypeOfExpression e1 num * TypeOfExpression e2 num)) G gf →
+        TypeOfExpression (e1 + e2) t G gf
+    typeOfExpressionLess : { G : ScopeGraph } → { e1 e2 : Expr } → { t : Type } → { gf : ScopeGraphFragment } →
+        (Eq bool t * (TypeOfExpression e1 num * TypeOfExpression e2 num)) G gf →
+        TypeOfExpression (e1 >' e2) t G gf
+    typeOfExpressionIf : { G : ScopeGraph } → { cond e1 e2 : Expr } → { t : Type } → { gf : ScopeGraphFragment } →
+        (TypeOfExpression cond bool * (TypeOfExpression e1 t * TypeOfExpression e2 t)) G gf →
+        TypeOfExpression (if' cond then e1 else e2) t G gf
 
 
 -- Type check examples
-graphFragment : GraphFragment {Type}
+graphFragment : ScopeGraphFragment {Type}
 graphFragment = < [] , [] >
 
 -- Example 1
 expr1 = (numLit 1) + (numLit 2)
 ty1 = num
 
-typeCheckExpression1 : TypeOfExpression expr1 ty1 graphFragment
+typeCheckExpression1 : {G : ScopeGraph} → TypeOfExpression expr1 ty1 G graphFragment
 typeCheckExpression1 = typeOfExpressionAdd ((refl , refl) ⟨ refl ⟩ 
     ((typeOfExpressionNum (refl , refl)) ⟨ refl ⟩ (typeOfExpressionNum (refl , refl))))
 
@@ -54,6 +54,6 @@ typeCheckExpression1 = typeOfExpressionAdd ((refl , refl) ⟨ refl ⟩
 expr2 = if' (boolLit true) then ((numLit 1)) else (numLit 0)
 ty2 = num
 
-typeCheckExpression2 : TypeOfExpression expr2 ty2 graphFragment
+typeCheckExpression2 : {G : ScopeGraph} → TypeOfExpression expr2 ty2 G graphFragment
 typeCheckExpression2 = typeOfExpressionIf (typeOfExpressionBool (refl , refl) ⟨ refl ⟩ 
     (typeOfExpressionNum (refl , refl) ⟨ refl ⟩ typeOfExpressionNum (refl , refl)))
