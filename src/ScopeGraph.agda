@@ -6,6 +6,8 @@ open import Data.List.Membership.Propositional
 open import Data.Nat hiding (_⊔_)
 open import Data.Product hiding (map ; <_,_>)
 open import Data.String hiding (_++_)
+open import Data.Unit
+open import Relation.Nullary
 open import Relation.Binary.PropositionalEquality
 
 
@@ -26,6 +28,7 @@ record Edge : Set where
 
 -- scope graph
 record ScopeGraph : Set where
+    constructor G<_,_>
     field
         scopes : List Scope
         edges : List Edge
@@ -42,26 +45,25 @@ _⊔_ : ScopeGraphFragment → ScopeGraphFragment → ScopeGraphFragment
 < nodes1 , edges1 > ⊔ < nodes2 , edges2 > = < nodes1 ++ nodes2 , edges1 ++ edges2 >
 
 module Path 
-    (G : ScopeGraph)
     (pathEmptyToTerm : Scope -> Term) 
-    (pathStepToTerm : Scope -> Label -> Term -> Term) where
-
-
-    postulate
-        neighboursOf : Scope → ScopeGraph → List Scope
-        getLabel : Scope → Scope → Label
-        emptyTerm : Term
+    (pathStepToTerm : Scope -> Label -> Term -> Term) 
+    {G : ScopeGraph} where
 
     -- reachability
     data _⟶_ : Scope → Scope → Set where
         [] : ∀ {s} → s ⟶ s
-        _∷_ : ∀ {s1 s2 s3} → s2 ∈ neighboursOf s1 G → s2 ⟶ s3 → s1 ⟶ s3 
+        _∷_ : ∀ {s1 s2 s3} → { l : Label } → (edge s1 l s2) ∈ ScopeGraph.edges G → s2 ⟶ s3 → s1 ⟶ s3 
 
     -- resolution path
-    data _↦[_]*_ (s1 : Scope) (allowedWord : {s2 : Scope} → s1 ⟶ s2 → Set) (t : Term) : Set where 
-        path : ∀ {s2} → (p : s1 ⟶ s2) → (allowedWord p) → t ≡ Scope.term s2 → (s1 ↦[ allowedWord ]* t) 
+    data _↦[_]*_ (s1 : Scope) (allowedWord : {s2 : Scope} → s1 ⟶ s2 → Set) (D : Term → Set) : Set where 
+        path : ∀ {s2} → (p : s1 ⟶ s2) → (allowedWord p) → D (Scope.term s2) → (s1 ↦[ allowedWord ]* D) 
 
+    pathToTerm : { s1 s2 : Scope } → s1 ⟶ s2 → Term
+    pathToTerm ([] {s}) = pathEmptyToTerm s 
+    pathToTerm ((_∷_) {s1} {s2} {s3} {l} _ p) = pathStepToTerm s1 l (pathToTerm p)
+
+    resolutionPathToTerm : { s : Scope } {allowedWord : {s2 : Scope} → s ⟶ s2 → Set} {D : Term → Set} → s ↦[ allowedWord ]* D → Term
+    resolutionPathToTerm (path p aw dp) = pathToTerm p
     
-    answer : { s1 s2 : Scope } → s1 ⟶ s2 → Term
-    answer ([] {s}) = pathEmptyToTerm s 
-    answer ((_∷_) {s1} {s2} {s3} _ p) = pathStepToTerm s1 (getLabel s1 s2) (answer p)
+    noPathMissing : {s : Scope} {D : Term → Set} {aw : {s2 : Scope} → s ⟶ s2 → Set} → List (s ↦[ aw ]* D) → ScopeGraph → Set
+    noPathMissing ps G = ⊤
