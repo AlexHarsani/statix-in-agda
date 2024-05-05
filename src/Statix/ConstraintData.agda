@@ -72,4 +72,4 @@ sat g (EdgeC e@(s₁ , l , s₂)) = ((l , s₂) ∈ edges (g s₁)) , λ edge-pr
 sat g (DataC s t) = (decl (g s) ≡ t) , λ data-proof → < [] , [] >
 sat g (QueryC s r D cf) = (Σ (ValidQuery g s r D) (λ s → proj₁ (sat g (cf (ValidQuery.paths s))))) , 
                             λ sat-proof → proj₂ (sat g (cf (ValidQuery.paths (proj₁ sat-proof)))) (proj₂ sat-proof)
-sat g (MinC paths paths' R isPreorder) = (paths' ≡ (minPaths paths R)) , λ _ → empGf
+sat g (MinC paths paths' R isPreorder) = (minPaths paths paths' R)  , λ _ → empGf

@@ -7,6 +7,9 @@ open import Data.List.Membership.Propositional
 open import Data.Unit
 open import Data.List.Relation.Unary.All
 open import Relation.Nullary
+open import Relation.Nullary.Decidable
+open import Relation.Binary
+open import Data.List.Relation.Unary.All
 
 ScopeData : Set → Set
 ScopeData Term = (List (Label × Scope)) × Term
@@ -52,8 +55,8 @@ module Path where
         _::'_ : (Scope × Label) → Path → Path
 
     pathLength : Path → ℕ
-    pathLength (last' x) = 1
-    pathLength (x ::' p) = 1 + pathLength p
+    pathLength (last' x) = zero
+    pathLength (x ::' p) = suc (pathLength p)
 
     validPath : {Term : Set} → ScopeGraph Term → Path → Set
     validPath G (last' x) = ⊤
@@ -68,8 +71,9 @@ module Path where
     validEnd g D (last' x) = D (decl (g x))
     validEnd g D (x ::' p) = validEnd g D p
 
-    min : (A : List Path) → (_≤_ : Rel Path Agda.Primitive.lzero) → Path → Dec Set
-    min A R p = yes (p ∈ A → ∀ {q} → q ∈ A → R q p → R p q)
+    min : (A : List Path) → (R : (Rel Path Agda.Primitive.lzero)) → Path → Set
+    min A R p = p ∈ A → ∀ {q} → q ∈ A → R q p → R p q
 
-    minPaths : (A : List Path) → (R : (Rel Path Agda.Primitive.lzero)) → List Path
-    minPaths A R = filter (min A R) A
+    minPaths : (A A' : List Path) → (R : Rel Path Agda.Primitive.lzero) → Set
+    minPaths A A' R = All (min A R) A'
+    
