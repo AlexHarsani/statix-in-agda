@@ -1,4 +1,4 @@
-module SimpleTypeSystemFunction (Label : Set) where
+module Test.Legacy.SimpleTypeSystemFunction (Label : Set) where
 
 open import Agda.Primitive
 open import Data.Bool

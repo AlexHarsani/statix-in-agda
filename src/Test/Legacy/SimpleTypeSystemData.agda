@@ -1,4 +1,4 @@
-module SimpleTypeSystemData (Label : Set) where
+module Test.Legacy.SimpleTypeSystemData (Label : Set) where
 
 open import Agda.Primitive
 open import Data.Bool
