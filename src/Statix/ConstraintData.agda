@@ -7,7 +7,7 @@ open import Data.Product hiding (<_,_>)
 open import Data.Unit
 open import Relation.Binary.PropositionalEquality
 open import Relation.Binary.Bundles using (TotalPreorder)
-
+open import Relation.Binary
 open import Data.Nat.Properties
 open import Relation.Binary.Core
 open import Relation.Binary.Structures using (IsPreorder ; IsTotalPreorder)
@@ -40,7 +40,7 @@ data Constraint {Term : Set} (g : ScopeGraph Term) : Set₁ where
     -- query
     QueryC : Scope → (r : Path → Set) → (D : Term → Set) → (List Path → Constraint g) → Constraint g
     -- min
-    MinC : (paths paths' : List Path) → (R : Rel Path Agda.Primitive.lzero) → (IsPreorder _≡_ R) → Constraint g
+    MinC : (paths paths' : List Path) → {R : Rel Path Agda.Primitive.lzero} → Decidable R → (IsPreorder _≡_ R) → Constraint g
 
 record ValidQuery {Term : Set} (g : ScopeGraph Term) (s : Scope) (r : Path → Set) (D : Term → Set) : Set where
     constructor query-proof
@@ -72,4 +72,4 @@ sat g (EdgeC e@(s₁ , l , s₂)) = ((l , s₂) ∈ edges (g s₁)) , λ edge-pr
 sat g (DataC s t) = (decl (g s) ≡ t) , λ data-proof → < [] , [] >
 sat g (QueryC s r D cf) = (Σ (ValidQuery g s r D) (λ s → proj₁ (sat g (cf (ValidQuery.paths s))))) , 
                             λ sat-proof → proj₂ (sat g (cf (ValidQuery.paths (proj₁ sat-proof)))) (proj₂ sat-proof)
-sat g (MinC paths paths' R isPreorder) = (minPaths paths paths' R)  , λ _ → empGf
+sat g (MinC paths paths' R? isPreorder) = (minPaths R? paths paths ≡ paths')  , λ _ → empGf

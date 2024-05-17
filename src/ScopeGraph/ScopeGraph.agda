@@ -2,6 +2,7 @@ module ScopeGraph.ScopeGraph (Label : Set) (Scope : Set) where
 
 open import Data.List
 open import Data.Nat
+open import Data.Fin
 open import Data.Product hiding (<_,_>)
 open import Data.List.Membership.Propositional
 open import Data.Unit
@@ -10,6 +11,8 @@ open import Relation.Nullary
 open import Relation.Nullary.Decidable
 open import Relation.Binary
 open import Data.List.Relation.Unary.All
+open import Data.Bool.Base as Bool
+  using (Bool ; true ; false ; if_then_else_)
 
 ScopeData : Set → Set
 ScopeData Term = (List (Label × Scope)) × Term
@@ -70,10 +73,13 @@ module Path where
     validEnd : {Term : Set} → ScopeGraph Term → (Term → Set) → Path → Set
     validEnd g D (last' x) = D (decl (g x))
     validEnd g D (x ::' p) = validEnd g D p
-
-    min : (A : List Path) → (R : (Rel Path Agda.Primitive.lzero)) → Path → Set
-    min A R p = p ∈ A → ∀ {q} → q ∈ A → R q p → R p q
-
-    minPaths : (A A' : List Path) → (R : Rel Path Agda.Primitive.lzero) → Set
-    minPaths A A' R = All (min A R) A'
     
+    isMin : {R : (Rel Path Agda.Primitive.lzero)} → Decidable R → (A : List Path) → Path → Bool
+    isMin R? [] p = true
+    isMin R? (q ∷ A) p = if does (R? q p) 
+        then if does (R? p q) then isMin R? A p else false 
+        else isMin R? A p
+
+    minPaths : {R : (Rel Path Agda.Primitive.lzero)} → Decidable R → (A A' : List Path) → List Path
+    minPaths R? [] A' = []
+    minPaths R? (p ∷ A) A' = if isMin R? A' p then p ∷ minPaths R? A A' else minPaths R? A A'
