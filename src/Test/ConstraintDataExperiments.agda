@@ -22,14 +22,14 @@ postulate
 
 Scope = (Fin 2)
 
-open import Statix.ConstraintData Label Scope
-open import ScopeGraph.ScopeGraph Label Scope
+open import Statix.ConstraintData Label
+open import ScopeGraph.ScopeGraph Label
 open ScopeGraphFragments
 open Path
 
 postulate
     Term : Set
-    graph : ScopeGraph Term
+    graph : ScopeGraph Scope Term
     t' : Term
     l p d : Label
 
@@ -38,7 +38,7 @@ data Type' : Set where
     t2' : Type'
 
 postulate
-    graph' : ScopeGraph Type'
+    graph' : ScopeGraph Scope Type'
 
 
 emp-proof : proj₁ (sat graph EmpC)
@@ -56,7 +56,7 @@ eq-proof = refl
 exists-proof : proj₁ (sat graph (ExistsC λ t → EqC t t1'))
 exists-proof = t1' , refl
 
-graph2 : ScopeGraph Type'
+graph2 : ScopeGraph Scope Type'
 graph2 zero = (l , suc zero) ∷ [] , t1'
 graph2 (suc zero) = (l , zero) ∷ [] , t2'
 
@@ -66,7 +66,7 @@ conj-invalid-proof = λ { ((fst , snd) , disjointNonEmpty x snd') → x (here re
 conj-nodes-proof : proj₁ (sat graph2 (NodeC (suc zero) t2' *C NodeC zero t1'))
 conj-nodes-proof = (refl , refl) , disjointNonEmpty (λ { (here ()) ; (there ()) }) disjointEmpty
 
-path-1 : Path
+path-1 : Path graph2
 path-1 = (zero , l) ::' (last' (suc zero))
 
 queryC-proof : proj₁ (sat graph2 (QueryC zero (λ path → ⊤) (λ t → t ≡ t2') λ ts → ForallC ts λ t → EqC path-1 t))
@@ -74,13 +74,13 @@ queryC-proof = (query-proof (path-1 ∷ []) (λ { (here refl) → λ _ → here 
     (refl , tt) , disjointEmpty
 
 
-path-shorter : Path
+path-shorter : Path graph2
 path-shorter = last' zero
 
-path-longer : Path
+path-longer : Path graph2
 path-longer = (zero , l) ::' ((( suc zero , l )) ::' last' zero)
 
-shorter : Rel Path Agda.Primitive.lzero
+shorter : Rel (Path graph2) Agda.Primitive.lzero
 shorter p1 p2 = Data.Nat._≤_ (pathLength p1) (pathLength p2)
 
 shorter? : Decidable shorter
@@ -95,7 +95,7 @@ proof-refl : _≡_ ⇒ shorter
 proof-refl {last' x} refl = z≤n
 proof-refl {x ::' xs} refl = s≤s (proof-refl {xs} refl)
 
-proof-trans : { i j k : Path } → shorter i j → shorter j k → shorter i k
+proof-trans : { i j k : (Path graph2) } → shorter i j → shorter j k → shorter i k
 proof-trans {last' x} {last' y} {last' z} t1 t2 = t2
 proof-trans {last' x} {last' y} {z ::' zs} t1 t2 = t2
 proof-trans {last' x} {y ::' ys} {z ::' zs} t1 t2 = z≤n
@@ -118,11 +118,11 @@ paths = path-shorter ∷ path-shorter ∷ path-longer ∷ []
 open import Relation.Binary.PropositionalEquality
 open ≡-Reasoning
 
-min-proof : proj₁ (sat graph (MinC paths paths' shorter? shorterPreorder))
+min-proof : proj₁ (sat graph2 (MinC paths paths' shorter? shorterPreorder))
 min-proof = refl
 
-paths'' : List Path
+paths'' : List (Path graph2)
 paths'' = []
 
-min-proof' : proj₁ (sat graph (MinC paths paths'' shorter? shorterPreorder)) → ⊥
+min-proof' : proj₁ (sat graph2 (MinC paths paths'' shorter? shorterPreorder)) → ⊥
 min-proof' = λ ()

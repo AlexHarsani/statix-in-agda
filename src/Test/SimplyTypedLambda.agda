@@ -42,7 +42,7 @@ data NodeTerm : Set where
     _|'_ : Expr → Type → NodeTerm
     empNode : NodeTerm
 
-typeOfExpression : {Scope : Set} → (g : ScopeGraph Scope NodeTerm) → Scope → Expr → Type → Constraint Scope g
+typeOfExpression : {Scope : Set} → (g : ScopeGraph Scope NodeTerm) → Scope → Expr → Type → Constraint g
 typeOfExpression g s (numLit x) t = EqC num t
 typeOfExpression g s (boolLit x) t = EqC bool t
 typeOfExpression g s (e1 +' e2) t = EqC num t *C 
@@ -63,7 +63,7 @@ graph1 (suc (suc zero)) = [] , ((var "x") |' bool)
 program1 : Expr 
 program1 = lett var "x" be (boolLit true) inn var "x"
 
-type-check-proof : proj₁ (sat (Fin 3) graph1 (typeOfExpression graph1 zero program1 bool))  
+type-check-proof : proj₁ (sat graph1 (typeOfExpression graph1 zero program1 bool))  
 type-check-proof = bool , suc zero , 
     (refl , ((suc (suc zero) , ( there (here refl) , refl) , disjointNonEmpty (λ { () }) disjointEmpty) , 
     (here refl , 
@@ -85,7 +85,7 @@ graph2 (suc (suc zero)) = [] , ((var "x") |' num)
 program2 : Expr 
 program2 = lett var "x" be (numLit 2) inn (var "x" +' var "x")
 
-type-check-proof2 : proj₁ (sat (Fin 3) graph2 (typeOfExpression graph2 zero program2 num))  
+type-check-proof2 : proj₁ (sat graph2 (typeOfExpression graph2 zero program2 num))  
 type-check-proof2 = num , suc zero , 
     (refl , ((suc (suc zero) , ( there (here refl) , refl) , disjointNonEmpty (λ { () }) disjointEmpty) , 
     (here refl , 

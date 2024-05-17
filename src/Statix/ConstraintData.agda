@@ -1,4 +1,4 @@
-module Statix.ConstraintData (Label : Set) (Scope : Set) where
+module Statix.ConstraintData (Label : Set) where
 
 open import Data.Empty
 open import Data.List
@@ -12,11 +12,11 @@ open import Data.Nat.Properties
 open import Relation.Binary.Core
 open import Relation.Binary.Structures using (IsPreorder ; IsTotalPreorder)
 
-open import ScopeGraph.ScopeGraph Label Scope
+open import ScopeGraph.ScopeGraph Label
 open ScopeGraphFragments
 open Path
 
-data Constraint {Term : Set} (g : ScopeGraph Term) : Set₁ where
+data Constraint {Scope Term : Set} (g : ScopeGraph Scope Term) : Set₁ where
     -- true
     EmpC : Constraint g
     -- false
@@ -34,18 +34,18 @@ data Constraint {Term : Set} (g : ScopeGraph Term) : Set₁ where
     -- node assertion
     NodeC : (s : Scope) → Term → Constraint g
     -- edge assertion
-    EdgeC : (e : Edge) → Constraint g
+    EdgeC : (e : Edge g) → Constraint g
     -- data
     DataC : Scope → Term → Constraint g
     -- query
-    QueryC : Scope → (r : Path → Set) → (D : Term → Set) → (List Path → Constraint g) → Constraint g
+    QueryC : Scope → (r : (Path g) → Set) → (D : Term → Set) → (List (Path g) → Constraint g) → Constraint g
     -- min
-    MinC : (paths paths' : List Path) → {R : Rel Path Agda.Primitive.lzero} → Decidable R → (IsPreorder _≡_ R) → Constraint g
+    MinC : (paths paths' : List (Path g)) → {R : Rel (Path g) Agda.Primitive.lzero} → Decidable R → (IsPreorder _≡_ R) → Constraint g
 
-record ValidQuery {Term : Set} (g : ScopeGraph Term) (s : Scope) (r : Path → Set) (D : Term → Set) : Set where
+record ValidQuery {Scope Term : Set} (g : ScopeGraph Scope Term) (s : Scope) (r : (Path g) → Set) (D : Term → Set) : Set where
     constructor query-proof
     field
-        paths : List Path
+        paths : List (Path g)
         -- all paths are validPath
         valid-paths : ∀ {path} → path ∈ paths → r path → validPath g path
         -- all lead go from s to s' based on D
@@ -53,12 +53,13 @@ record ValidQuery {Term : Set} (g : ScopeGraph Term) (s : Scope) (r : Path → S
         -- no path is missing
         no-path-missing : ⊤
 
-sat-helper : (c1-sat c2-sat : (Σ Set λ s → (s → ScopeGraphFragment))) → (Σ Set λ s → (s → ScopeGraphFragment))
+sat-helper : {Scope Term : Set} {g : ScopeGraph Scope Term} 
+    (c1-sat c2-sat : (Σ Set λ s → (s → ScopeGraphFragment g))) → (Σ Set λ s → (s → ScopeGraphFragment g))
 sat-helper c1-sat c2-sat = Σ (proj₁ c1-sat × proj₁ c2-sat) 
     ((λ (c1-proof , c2-proof) → DisjointGraphFragments (proj₂ c1-sat c1-proof) (proj₂ c2-sat c2-proof))) , 
     λ ((c1-proof , c2-proof) , disjoint) → mergeFragments (proj₂ c1-sat c1-proof) (proj₂ c2-sat c2-proof)
 
-sat : {Term : Set} (g : ScopeGraph Term) → Constraint g → (Σ Set λ s → (s → ScopeGraphFragment))
+sat : {Scope Term : Set} (g : ScopeGraph Scope Term) → Constraint g → (Σ Set λ s → (s → ScopeGraphFragment g))
 sat g EmpC = ⊤ , λ s → empGf
 sat g FalseC = ⊥ , λ s → empGf
 sat g (c1 *C c2) = sat-helper (sat g c1) (sat g c2)
