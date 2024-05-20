@@ -11,6 +11,10 @@ open import Relation.Binary
 open import Data.Nat.Properties
 open import Relation.Binary.Core
 open import Relation.Binary.Structures using (IsPreorder ; IsTotalPreorder)
+open import Data.List.Relation.Binary.Permutation.Propositional
+open import Data.Nat
+open import Data.Fin
+
 
 open import ScopeGraph.ScopeGraph Label
 open ScopeGraphFragments
@@ -74,3 +78,8 @@ sat g (DataC s t) = (decl (g s) ≡ t) , λ data-proof → < [] , [] >
 sat g (QueryC s r D cf) = (Σ (ValidQuery g s r D) (λ s → proj₁ (sat g (cf (ValidQuery.paths s))))) , 
                             λ sat-proof → proj₂ (sat g (cf (ValidQuery.paths (proj₁ sat-proof)))) (proj₂ sat-proof)
 sat g (MinC paths paths' R? isPreorder) = (minPaths R? paths paths ≡ paths')  , λ _ → empGf
+
+validTopLevelGraphFragment : {k : ℕ} {Term : Set} {g : ScopeGraph (Fin k) Term} → (c : Constraint g) → (c-proof : proj₁ (sat g c)) → Set
+validTopLevelGraphFragment {_} {_} {g} c c-proof =  
+    ((ScopeGraphFragment.fragmentNodes (proj₂ (sat g c) c-proof)) ↭ (ScopeGraphFragment.fragmentNodes (functionToFragment g))) × 
+    (ScopeGraphFragment.fragmentEdges (proj₂ (sat g c) c-proof) ↭ ScopeGraphFragment.fragmentEdges (functionToFragment g))

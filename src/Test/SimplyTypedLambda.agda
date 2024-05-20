@@ -13,6 +13,7 @@ open import Relation.Binary.PropositionalEquality
 open import Relation.Binary.Core
 open import Relation.Binary.Structures using (IsPreorder ; IsTotalPreorder)
 open import Data.List.Relation.Unary.All renaming (_∷_ to _∷A_ ; [] to []A)
+open import Data.List.Relation.Binary.Permutation.Propositional
 
 
 data Label : Set where
@@ -42,17 +43,20 @@ data NodeTerm : Set where
     _|'_ : Expr → Type → NodeTerm
     empNode : NodeTerm
 
+typeOfExpression' : {Scope : Set} → (g : ScopeGraph Scope NodeTerm) → Scope → Expr → Type → Constraint g
+typeOfExpression' g s (numLit x) t = EqC num t
+typeOfExpression' g s (boolLit x) t = EqC bool t
+typeOfExpression' g s (e1 +' e2) t = EqC num t *C 
+    (typeOfExpression' g s e1 num *C typeOfExpression' g s e2 num)
+typeOfExpression' g s (fun< x of t1 >body body) t = ExistsC λ t2 → ExistsC λ sf → EqC t (t1 to t2) *C 
+   ((ExistsC λ sx → EdgeC (sf , d , sx) *C NodeC sx (x |' t1)) *C (EdgeC (sf , l , s) *C typeOfExpression' g s body t2)) 
+typeOfExpression' g s (var x) t = QueryC s (λ _ → ⊤) (λ d → d ≡ (var x |' t)) λ paths → ExistsC λ path → SingleC path paths
+typeOfExpression' g s (fun e1 app e2) t2 = ExistsC λ t1 → typeOfExpression' g s e1 (t1 to t2) *C typeOfExpression' g s e2 t1
+typeOfExpression' g s (lett x be e1 inn e2) t2 = (ExistsC λ t1 → ExistsC λ sb → (NodeC sb empNode) *C (EdgeC (s , d , sb) *C (typeOfExpression' g s e1 t1 *C 
+    (ExistsC (λ sx → EdgeC (sb , d , sx) *C NodeC sx (x |' t1)) *C (EdgeC (sb , l , s) *C typeOfExpression' g sb e2 t2)))))
+
 typeOfExpression : {Scope : Set} → (g : ScopeGraph Scope NodeTerm) → Scope → Expr → Type → Constraint g
-typeOfExpression g s (numLit x) t = EqC num t
-typeOfExpression g s (boolLit x) t = EqC bool t
-typeOfExpression g s (e1 +' e2) t = EqC num t *C 
-    (typeOfExpression g s e1 num *C typeOfExpression g s e2 num)
-typeOfExpression g s (fun< x of t1 >body body) t = ExistsC λ t2 → ExistsC λ sf → EqC t (t1 to t2) *C 
-   ((ExistsC λ sx → EdgeC (sf , d , sx) *C NodeC sx (x |' t1)) *C (EdgeC (sf , l , s) *C typeOfExpression g s body t2)) 
-typeOfExpression g s (var x) t = QueryC s (λ _ → ⊤) (λ d → d ≡ (var x |' t)) λ paths → ExistsC λ path → SingleC path paths
-typeOfExpression g s (fun e1 app e2) t2 = ExistsC λ t1 → typeOfExpression g s e1 (t1 to t2) *C typeOfExpression g s e2 t1
-typeOfExpression g s (lett x be e1 inn e2) t2 = ExistsC λ t1 → ExistsC λ sb → (typeOfExpression g s e1 t1 *C 
-    (ExistsC (λ sx → EdgeC (sb , d , sx) *C NodeC sx (x |' t1)) *C (EdgeC (sb , l , s) *C typeOfExpression g sb e2 t2)))
+typeOfExpression g s e t = NodeC s empNode *C typeOfExpression' g s e t
 
 
 graph1 : ScopeGraph (Fin 3) NodeTerm
@@ -64,17 +68,18 @@ program1 : Expr
 program1 = lett var "x" be (boolLit true) inn var "x"
 
 type-check-proof : proj₁ (sat graph1 (typeOfExpression graph1 zero program1 bool))  
-type-check-proof = bool , suc zero , 
-    (refl , ((suc (suc zero) , ( there (here refl) , refl) , disjointNonEmpty (λ { () }) disjointEmpty) , 
-    (here refl , 
-        (query-proof 
-            (((zero , d) ::' ((suc zero , d) ::' last' (suc (suc zero)))) ∷ []) 
-            (λ { (here refl) → λ { tt → here refl , there (here refl) } }) 
-            (λ { (here refl) → λ t → refl }) 
-            tt) , 
-        ((zero , d) ::' ((suc zero , d) ::' last' (suc (suc zero)))) , refl) ,
-    disjointEmpty) , 
-    disjointEmpty) , disjointNonEmpty (λ { () }) disjointEmpty   
+type-check-proof = (refl , bool , suc zero , 
+    (refl , (here refl , (refl , ((suc (suc zero) , (there (here refl) , refl) , disjointNonEmpty (λ { () }) disjointEmpty) , (here refl , (query-proof 
+                (((zero , d) ::' ((suc zero , d) ::' last' (suc (suc zero)))) ∷ []) 
+                (λ { (here refl) → λ { tt → here refl , there (here refl) } }) 
+                (λ { (here refl) → λ t → refl }) 
+                tt) , (((zero , d) ::' ((suc zero , d) ::' last' (suc (suc zero))))) , refl) , disjointEmpty) , disjointEmpty) , disjointNonEmpty (λ { () }) disjointEmpty) , disjointNonEmpty (λ { () }) disjointEmpty) , disjointNonEmpty (λ { (here ())
+                                                                                                                                                                                                   ; (there ()) }) disjointEmpty) , disjointNonEmpty (λ { (here ())
+                                                                                                                                                                                                                                                        ; (there ()) }) (disjointNonEmpty (λ { (here ())
+                                                                                                                                                                                                                                                                                             ; (there ()) }) disjointEmpty)
+ 
+type-check-fragment : validTopLevelGraphFragment ((typeOfExpression graph1 zero program1 bool)) type-check-proof
+type-check-fragment =  refl , prep (zero , d , suc zero) (_↭_.swap (suc zero , d , suc (suc zero)) (suc zero , l , zero) refl)
 
 
 graph2 : ScopeGraph (Fin 3) NodeTerm
@@ -86,21 +91,20 @@ program2 : Expr
 program2 = lett var "x" be (numLit 2) inn (var "x" +' var "x")
 
 type-check-proof2 : proj₁ (sat graph2 (typeOfExpression graph2 zero program2 num))  
-type-check-proof2 = num , suc zero , 
-    (refl , ((suc (suc zero) , ( there (here refl) , refl) , disjointNonEmpty (λ { () }) disjointEmpty) , 
-    (here refl , 
-        (refl , (
-            ((query-proof 
+type-check-proof2 = (refl , num , suc zero , 
+    (refl , (here refl , (refl , ((suc (suc zero) , (there (here refl) , refl) , disjointNonEmpty (λ { () }) disjointEmpty) , 
+        (here refl , (refl , 
+            (((query-proof 
                 (((zero , d) ::' ((suc zero , d) ::' last' (suc (suc zero)))) ∷ []) 
                 (λ { (here refl) → λ { tt → here refl , there (here refl) } }) 
                 (λ { (here refl) → λ t → refl }) 
-                tt) 
-            , ((zero , d) ::' ((suc zero , d) ::' last' (suc (suc zero)))) , refl) , 
-            (query-proof 
-                ((((zero , d) ::' ((suc zero , d) ::' last' (suc (suc zero)))) ∷ [])) 
-                ((λ { (here refl) → λ { tt → here refl , there (here refl) } } )) 
-                ((λ { (here refl) → λ t → refl })) tt) 
-            , ((zero , d) ::' ((suc zero , d) ::' last' (suc (suc zero)))) , refl) , 
-            disjointEmpty) , disjointEmpty) ,
-    disjointEmpty) , 
-    disjointEmpty) , disjointNonEmpty (λ { () }) disjointEmpty 
+                tt) , ((((zero , d) ::' ((suc zero , d) ::' last' (suc (suc zero)))))) , refl) , 
+              (query-proof 
+                (((zero , d) ::' ((suc zero , d) ::' last' (suc (suc zero)))) ∷ []) 
+                (λ { (here refl) → λ { tt → here refl , there (here refl) } }) 
+                (λ { (here refl) → λ t → refl }) 
+                tt) , ((((zero , d) ::' ((suc zero , d) ::' last' (suc (suc zero)))))) , refl) , 
+        disjointEmpty) , disjointEmpty) , disjointEmpty) , disjointEmpty) , disjointNonEmpty (λ { () }) disjointEmpty) , disjointNonEmpty (λ { () }) disjointEmpty) , disjointNonEmpty (λ { (here ())
+                                                                                                                                                                                          ; (there ()) }) disjointEmpty) , disjointNonEmpty (λ { (here ())
+                                                                                                                                                                                                                                               ; (there ()) }) (disjointNonEmpty (λ { (here ())
+                                                                                                                                                                                                                                                                                    ; (there ()) }) disjointEmpty) 

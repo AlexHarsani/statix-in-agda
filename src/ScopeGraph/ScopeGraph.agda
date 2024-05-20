@@ -3,14 +3,12 @@ module ScopeGraph.ScopeGraph (Label : Set) where
 open import Data.List
 open import Data.Nat
 open import Data.Fin
-open import Data.Product hiding (<_,_>)
+open import Data.Product hiding (<_,_> ; map)
 open import Data.List.Membership.Propositional
 open import Data.Unit
-open import Data.List.Relation.Unary.All
 open import Relation.Nullary
-open import Relation.Nullary.Decidable
 open import Relation.Binary
-open import Data.List.Relation.Unary.All
+open import Data.List.Relation.Unary.All hiding (map)
 open import Data.Bool.Base as Bool
   using (Bool ; true ; false ; if_then_else_)
 
@@ -50,6 +48,12 @@ module ScopeGraphFragments where
       (gf1 gf2 : ScopeGraphFragment g) → ScopeGraphFragment g
     mergeFragments < fragmentNodes1 , fragmentEdges1 > < fragmentNodes2 , fragmentEdges2 > = 
         < fragmentNodes1 ++ fragmentNodes2 , fragmentEdges1 ++ fragmentEdges2 >
+
+    getOutgoingEdges : {k : ℕ} {Term : Set} (g : ScopeGraph (Fin k) Term) → Fin k → List (Edge g)
+    getOutgoingEdges g source = map (λ { (label , target) → source , label , target }) (proj₁ (g source))
+ 
+    functionToFragment : {k : ℕ} {Term : Set} (g : ScopeGraph (Fin k) Term) → ScopeGraphFragment g
+    functionToFragment {n} g = < allFin n , concat (map (getOutgoingEdges g) (allFin n))  >
 
 
 module Path where
