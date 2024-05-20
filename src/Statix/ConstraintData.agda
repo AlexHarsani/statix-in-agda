@@ -20,7 +20,7 @@ open import ScopeGraph.ScopeGraph Label
 open ScopeGraphFragments
 open Path
 
-data Constraint {Scope Term : Set} (g : ScopeGraph Scope Term) : Set₁ where
+data Constraint {numberOfScopes : ℕ} {Term : Set} (g : ScopeGraph numberOfScopes Term) : Set₁ where
     -- true
     EmpC : Constraint g
     -- false
@@ -36,17 +36,17 @@ data Constraint {Scope Term : Set} (g : ScopeGraph Scope Term) : Set₁ where
     -- forall
     ForallC : {Term' : Set} → (List Term') → (Term' → Constraint g) → Constraint g
     -- node assertion
-    NodeC : (s : Scope) → Term → Constraint g
+    NodeC : (s : (Fin numberOfScopes)) → Term → Constraint g
     -- edge assertion
     EdgeC : (e : Edge g) → Constraint g
     -- data
-    DataC : Scope → Term → Constraint g
+    DataC : (Fin numberOfScopes) → Term → Constraint g
     -- query
-    QueryC : Scope → (r : (Path g) → Set) → (D : Term → Set) → (List (Path g) → Constraint g) → Constraint g
+    QueryC : (Fin numberOfScopes) → (r : (Path g) → Set) → (D : Term → Set) → (List (Path g) → Constraint g) → Constraint g
     -- min
     MinC : (paths paths' : List (Path g)) → {R : Rel (Path g) Agda.Primitive.lzero} → Decidable R → (IsPreorder _≡_ R) → Constraint g
 
-record ValidQuery {Scope Term : Set} (g : ScopeGraph Scope Term) (s : Scope) (r : (Path g) → Set) (D : Term → Set) : Set where
+record ValidQuery {numberOfScopes : ℕ} {Term : Set} (g : ScopeGraph numberOfScopes Term) (s : Fin numberOfScopes) (r : (Path g) → Set) (D : Term → Set) : Set where
     constructor query-proof
     field
         paths : List (Path g)
@@ -57,13 +57,13 @@ record ValidQuery {Scope Term : Set} (g : ScopeGraph Scope Term) (s : Scope) (r 
         -- no path is missing
         no-path-missing : ⊤
 
-sat-helper : {Scope Term : Set} {g : ScopeGraph Scope Term} 
+sat-helper : {numberOfScopes : ℕ} {Term : Set} {g : ScopeGraph numberOfScopes Term} 
     (c1-sat c2-sat : (Σ Set λ s → (s → ScopeGraphFragment g))) → (Σ Set λ s → (s → ScopeGraphFragment g))
 sat-helper c1-sat c2-sat = Σ (proj₁ c1-sat × proj₁ c2-sat) 
     ((λ (c1-proof , c2-proof) → DisjointGraphFragments (proj₂ c1-sat c1-proof) (proj₂ c2-sat c2-proof))) , 
     λ ((c1-proof , c2-proof) , disjoint) → mergeFragments (proj₂ c1-sat c1-proof) (proj₂ c2-sat c2-proof)
 
-sat : {Scope Term : Set} (g : ScopeGraph Scope Term) → Constraint g → (Σ Set λ s → (s → ScopeGraphFragment g))
+sat : {numberOfScopes : ℕ} {Term : Set} (g : ScopeGraph numberOfScopes Term) → Constraint g → (Σ Set λ s → (s → ScopeGraphFragment g))
 sat g EmpC = ⊤ , λ s → empGf
 sat g FalseC = ⊥ , λ s → empGf
 sat g (c1 *C c2) = sat-helper (sat g c1) (sat g c2)
@@ -79,7 +79,7 @@ sat g (QueryC s r D cf) = (Σ (ValidQuery g s r D) (λ s → proj₁ (sat g (cf 
                             λ sat-proof → proj₂ (sat g (cf (ValidQuery.paths (proj₁ sat-proof)))) (proj₂ sat-proof)
 sat g (MinC paths paths' R? isPreorder) = (minPaths R? paths paths ≡ paths')  , λ _ → empGf
 
-validTopLevelGraphFragment : {k : ℕ} {Term : Set} {g : ScopeGraph (Fin k) Term} → (c : Constraint g) → (c-proof : proj₁ (sat g c)) → Set
+validTopLevelGraphFragment : {numberOfScopes : ℕ} {Term : Set} {g : ScopeGraph numberOfScopes Term} → (c : Constraint g) → (c-proof : proj₁ (sat g c)) → Set
 validTopLevelGraphFragment {_} {_} {g} c c-proof =  
     ((ScopeGraphFragment.fragmentNodes (proj₂ (sat g c) c-proof)) ↭ (ScopeGraphFragment.fragmentNodes (functionToFragment g))) × 
     (ScopeGraphFragment.fragmentEdges (proj₂ (sat g c) c-proof) ↭ ScopeGraphFragment.fragmentEdges (functionToFragment g))

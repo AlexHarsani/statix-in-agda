@@ -43,7 +43,7 @@ data NodeTerm : Set where
     _|'_ : Expr → Type → NodeTerm
     empNode : NodeTerm
 
-typeOfExpression' : {Scope : Set} → (g : ScopeGraph Scope NodeTerm) → Scope → Expr → Type → Constraint g
+typeOfExpression' : {numberOfScopes : ℕ} → (g : ScopeGraph numberOfScopes NodeTerm) → (Fin numberOfScopes) → Expr → Type → Constraint g
 typeOfExpression' g s (numLit x) t = EqC num t
 typeOfExpression' g s (boolLit x) t = EqC bool t
 typeOfExpression' g s (e1 +' e2) t = EqC num t *C 
@@ -55,11 +55,11 @@ typeOfExpression' g s (fun e1 app e2) t2 = ExistsC λ t1 → typeOfExpression' g
 typeOfExpression' g s (lett x be e1 inn e2) t2 = (ExistsC λ t1 → ExistsC λ sb → (NodeC sb empNode) *C (EdgeC (s , d , sb) *C (typeOfExpression' g s e1 t1 *C 
     (ExistsC (λ sx → EdgeC (sb , d , sx) *C NodeC sx (x |' t1)) *C (EdgeC (sb , l , s) *C typeOfExpression' g sb e2 t2)))))
 
-typeOfExpression : {Scope : Set} → (g : ScopeGraph Scope NodeTerm) → Scope → Expr → Type → Constraint g
+typeOfExpression : {numberOfScopes : ℕ} → (g : ScopeGraph numberOfScopes NodeTerm) → (Fin numberOfScopes) → Expr → Type → Constraint g
 typeOfExpression g s e t = NodeC s empNode *C typeOfExpression' g s e t
 
 
-graph1 : ScopeGraph (Fin 3) NodeTerm
+graph1 : ScopeGraph 3 NodeTerm
 graph1 zero = (d , (suc zero)) ∷ [] , empNode
 graph1 (suc zero) = (l , zero) ∷ (d , (suc (suc zero))) ∷ [] , empNode
 graph1 (suc (suc zero)) = [] , ((var "x") |' bool)
@@ -82,7 +82,7 @@ type-check-fragment : validTopLevelGraphFragment ((typeOfExpression graph1 zero 
 type-check-fragment =  refl , prep (zero , d , suc zero) (_↭_.swap (suc zero , d , suc (suc zero)) (suc zero , l , zero) refl)
 
 
-graph2 : ScopeGraph (Fin 3) NodeTerm
+graph2 : ScopeGraph 3 NodeTerm
 graph2 zero = (d , (suc zero)) ∷ [] , empNode
 graph2 (suc zero) = (l , zero) ∷ (d , (suc (suc zero))) ∷ [] , empNode
 graph2 (suc (suc zero)) = [] , ((var "x") |' num)

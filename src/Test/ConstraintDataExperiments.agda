@@ -20,8 +20,6 @@ open import Data.List.Relation.Unary.All renaming (_∷_ to _∷A_ ; [] to []A)
 postulate
     Label : Set
 
-Scope = (Fin 2)
-
 open import Statix.ConstraintData Label
 open import ScopeGraph.ScopeGraph Label
 open ScopeGraphFragments
@@ -29,7 +27,7 @@ open Path
 
 postulate
     Term : Set
-    graph : ScopeGraph Scope Term
+    graph : ScopeGraph 2 Term
     t' : Term
     l p d : Label
 
@@ -38,7 +36,7 @@ data Type' : Set where
     t2' : Type'
 
 postulate
-    graph' : ScopeGraph Scope Type'
+    graph' : ScopeGraph 2 Type'
 
 
 emp-proof : proj₁ (sat graph EmpC)
@@ -56,7 +54,7 @@ eq-proof = refl
 exists-proof : proj₁ (sat graph (ExistsC λ t → EqC t t1'))
 exists-proof = t1' , refl
 
-graph2 : ScopeGraph Scope Type'
+graph2 : ScopeGraph 2 Type'
 graph2 zero = (l , suc zero) ∷ [] , t1'
 graph2 (suc zero) = (l , zero) ∷ [] , t2'
 
