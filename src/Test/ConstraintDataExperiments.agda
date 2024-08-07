@@ -64,14 +64,6 @@ conj-invalid-proof = λ { ((fst , snd) , disjointNonEmpty x snd') → x (here re
 conj-nodes-proof : proj₁ (sat graph2 (NodeC (suc zero) t2' *C NodeC zero t1'))
 conj-nodes-proof = (refl , refl) , disjointNonEmpty (λ { (here ()) ; (there ()) }) disjointEmpty
 
-path-1 : Path graph2
-path-1 = (zero , l) ::' (last' (suc zero))
-
-queryC-proof : proj₁ (sat graph2 (QueryC zero (λ path → ⊤) (λ t → t ≡ t2') λ ts → ForallC ts λ t → EqC path-1 t))
-queryC-proof = (query-proof (path-1 ∷ []) (λ { (here refl) → λ _ → here refl} ) (λ { (here refl) → λ _ → refl}) tt) , 
-    (refl , tt) , disjointEmpty
-
-
 path-shorter : Path graph2
 path-shorter = last' zero
 
@@ -124,3 +116,4 @@ paths'' = []
 
 min-proof' : proj₁ (sat graph2 (MinC paths paths'' shorter? shorterPreorder)) → ⊥
 min-proof' = λ ()
+ 
