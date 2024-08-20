@@ -1,24 +1,19 @@
-module Statix.ConstraintData (Label : Set) where
+module Constraint (Label : Set) where
 
 open import Data.Empty
+open import Data.Fin
 open import Data.List
 open import Data.List.Membership.Propositional
-open import Data.Product hiding (<_,_>)
-open import Data.Unit
-open import Relation.Binary.PropositionalEquality
-open import Relation.Binary.Bundles using (TotalPreorder)
-open import Relation.Binary
-open import Data.Nat.Properties
-open import Relation.Binary.Core
-open import Relation.Binary.Structures using (IsPreorder ; IsTotalPreorder)
 open import Data.List.Relation.Binary.Permutation.Propositional
 open import Data.Nat
-open import Data.Fin
+open import Data.Product hiding (<_,_>)
+open import Data.Unit
+open import Relation.Binary
+open import Relation.Binary.PropositionalEquality
 
-
-open import ScopeGraph.ScopeGraph Label
-open ScopeGraphFragments
+open import ScopeGraph Label
 open Path
+open ScopeGraphFragments
 
 data Constraint {numberOfScopes : ℕ} {Term : Set} (g : ScopeGraph numberOfScopes Term) : Set₁ where
     -- true

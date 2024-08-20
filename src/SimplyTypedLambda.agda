@@ -1,35 +1,24 @@
-module Test.SimplyTypedLambda where
+module SimplyTypedLambda where
 
-open import Data.List
-open import Data.Empty
-open import Data.Maybe
-open import Data.Fin hiding (_+_ ; _≥_)
-open import Data.String hiding (length)
-open import Data.Nat
 open import Data.Bool
-open import Data.Product hiding (<_,_>)
+open import Data.Empty
+open import Data.Fin hiding (_+_ ; _≥_)
+open import Data.List
+open import Data.List.Relation.Binary.Permutation.Propositional
 open import Data.List.Relation.Unary.Any
-open import Data.List.Membership.Propositional
+open import Data.Nat
+open import Data.Product hiding (<_,_>)
+open import Data.String hiding (length)
 open import Data.Unit
 open import Relation.Binary.PropositionalEquality
-open import Relation.Binary.Core
-open import Relation.Nullary
-open import Relation.Binary.Structures using (IsPreorder ; IsTotalPreorder)
-open import Data.List.Relation.Unary.All renaming (_∷_ to _∷A_ ; [] to []A)
-open import Data.List.Relation.Binary.Permutation.Propositional
-open import Function using (case_of_)
-open import Data.List.Relation.Binary.Sublist.Propositional
-open import Relation.Binary.Structures using (IsPreorder ; IsTotalPreorder)
-open import Relation.Binary.Definitions
-
 
 
 data Label : Set where
     l : Label
     d : Label
 
-open import Statix.ConstraintData Label
-open import ScopeGraph.ScopeGraph Label
+open import Constraint Label
+open import ScopeGraph Label
 open ScopeGraphFragments
 open Path
 
@@ -183,4 +172,4 @@ module Proofs where
         disjointNonEmpty (λ { (here ()) ; (there ()) }) disjointEmpty) , refl) , disjointNonEmpty (λ { () }) (disjointNonEmpty (λ { () }) disjointEmpty)) , disjointNonEmpty (λ { (there (here ())) ; (there (there ())) }) disjointEmpty  
 
     type-check-fragment3 : validTopLevelGraphFragment ((typeOfExpression graph2 zero program3 (num))) type-check-proof3
-    type-check-fragment3 = refl , prep (zero , d , suc zero) (_↭_.swap (suc zero , d , suc (suc zero)) (suc zero , l , zero) refl)  
+    type-check-fragment3 = refl , prep (zero , d , suc zero) (_↭_.swap (suc zero , d , suc (suc zero)) (suc zero , l , zero) refl)   

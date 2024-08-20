@@ -1,29 +1,24 @@
-module Test.ConstraintDataExperiments where
+module ConstraintExperiments where
 
-open import Data.List
 open import Data.Empty
 open import Data.Fin
-open import Data.String hiding (length)
-open import Data.Nat
-open import Data.Bool
-open import Relation.Binary
-open import Data.Product
+open import Data.List
 open import Data.List.Relation.Unary.Any
+open import Data.Nat
+open import Data.Product
 open import Data.Unit
-open import Relation.Nullary
-open import Relation.Binary.PropositionalEquality
+open import Relation.Binary
 open import Relation.Binary.Core
-open import Relation.Binary.Structures using (IsPreorder ; IsTotalPreorder)
-open import Data.List.Relation.Unary.All renaming (_∷_ to _∷A_ ; [] to []A)
-
+open import Relation.Binary.PropositionalEquality
+open import Relation.Nullary
 
 postulate
     Label : Set
 
-open import Statix.ConstraintData Label
-open import ScopeGraph.ScopeGraph Label
-open ScopeGraphFragments
+open import Constraint Label
+open import ScopeGraph Label
 open Path
+open ScopeGraphFragments
 
 postulate
     Term : Set

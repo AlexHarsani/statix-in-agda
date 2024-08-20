@@ -1,18 +1,15 @@
-module ScopeGraph.ScopeGraph (Label : Set) where
+module ScopeGraph (Label : Set) where
 
-open import Data.List
-open import Data.Nat
-open import Data.Empty
 open import Data.Fin
-open import Data.Product hiding (<_,_> ; map)
+open import Data.List
 open import Data.List.Membership.Propositional
+open import Data.Nat
+open import Data.Product hiding (<_,_> ; map)
 open import Data.Unit
-open import Relation.Binary.Core
-open import Relation.Nullary
-open import Relation.Binary
-open import Data.List.Relation.Unary.All hiding (map)
 open import Data.Bool.Base as Bool
   using (Bool ; true ; false ; if_then_else_)
+open import Relation.Binary
+open import Relation.Nullary
 
 ScopeData : ℕ → Set → Set
 ScopeData numberOfScopes Term = (List (Label × (Fin numberOfScopes))) × Term

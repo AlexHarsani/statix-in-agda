@@ -1,35 +1,24 @@
-module Test.TypePreservation where
+module TypePreservation where
 
-open import Data.List
-open import Data.Empty
-open import Data.Maybe
 open import Data.Fin hiding (_+_ ; _≥_)
-open import Data.String hiding (length)
-open import Data.Nat
-open import Data.Bool
-open import Data.Product hiding (<_,_>)
-open import Data.List.Relation.Unary.Any
-open import Data.List.Relation.Unary.Any.Properties
+open import Data.List
 open import Data.List.Membership.Propositional
-open import Data.Unit
+open import Data.List.Relation.Unary.Any
+open import Data.Maybe
+open import Data.Nat
+open import Data.Product hiding (<_,_>)
+open import Data.String
 open import Relation.Binary.PropositionalEquality
-open import Relation.Binary.Core
 open import Relation.Nullary
-open import Relation.Binary.Structures using (IsPreorder ; IsTotalPreorder)
-open import Data.List.Relation.Unary.All renaming (_∷_ to _∷A_ ; [] to []A)
-open import Data.List.Relation.Binary.Permutation.Propositional
-open import Function using (case_of_)
-open import Data.List.Relation.Binary.Sublist.Propositional
-open import Data.List.Membership.Setoid.Properties
 
 data Label : Set where
     l : Label
     d : Label
 
-open import Statix.ConstraintData Label
-open import ScopeGraph.ScopeGraph Label
-open ScopeGraphFragments
+open import Constraint Label
+open import ScopeGraph Label
 open Path
+open ScopeGraphFragments
 
 data Type : Set where
     num : Type
