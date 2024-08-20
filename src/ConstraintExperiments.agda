@@ -34,29 +34,29 @@ postulate
     graph' : ScopeGraph 2 Type'
 
 
-emp-proof : proj₁ (sat graph EmpC)
+emp-proof : satisfies (sat graph EmpC)
 emp-proof = tt
 
-false-proof : proj₁ (sat graph FalseC) → ⊥
+false-proof : satisfies (sat graph FalseC) → ⊥
 false-proof ()
 
-conj-proof : proj₁ (sat graph (EmpC *C EmpC))
+conj-proof : satisfies (sat graph (EmpC *C EmpC))
 conj-proof = (tt , tt) , disjointEmpty
 
-eq-proof : proj₁ (sat graph (EqC t1' t1'))
+eq-proof : satisfies (sat graph (EqC t1' t1'))
 eq-proof = refl
 
-exists-proof : proj₁ (sat graph (ExistsC λ t → EqC t t1'))
+exists-proof : satisfies (sat graph (ExistsC λ t → EqC t t1'))
 exists-proof = t1' , refl
 
 graph2 : ScopeGraph 2 Type'
 graph2 zero = (l , suc zero) ∷ [] , t1'
 graph2 (suc zero) = (l , zero) ∷ [] , t2'
 
-conj-invalid-proof : proj₁ (sat graph2 (NodeC zero t1' *C NodeC zero t1')) → ⊥
+conj-invalid-proof : satisfies (sat graph2 (NodeC zero t1' *C NodeC zero t1')) → ⊥
 conj-invalid-proof = λ { ((fst , snd) , disjointNonEmpty x snd') → x (here refl) }
 
-conj-nodes-proof : proj₁ (sat graph2 (NodeC (suc zero) t2' *C NodeC zero t1'))
+conj-nodes-proof : satisfies (sat graph2 (NodeC (suc zero) t2' *C NodeC zero t1'))
 conj-nodes-proof = (refl , refl) , disjointNonEmpty (λ { (here ()) ; (there ()) }) disjointEmpty
 
 path-shorter : Path graph2
@@ -103,12 +103,12 @@ paths = path-shorter ∷ path-shorter ∷ path-longer ∷ []
 open import Relation.Binary.PropositionalEquality
 open ≡-Reasoning
 
-min-proof : proj₁ (sat graph2 (MinC paths paths' shorter? shorterPreorder))
+min-proof : satisfies (sat graph2 (MinC paths paths' shorter? shorterPreorder))
 min-proof = refl
 
 paths'' : List (Path graph2)
 paths'' = []
 
-min-proof' : proj₁ (sat graph2 (MinC paths paths'' shorter? shorterPreorder)) → ⊥
+min-proof' : satisfies (sat graph2 (MinC paths paths'' shorter? shorterPreorder)) → ⊥
 min-proof' = λ ()
  

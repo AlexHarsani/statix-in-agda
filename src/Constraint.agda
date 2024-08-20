@@ -59,14 +59,14 @@ record ValidQuery {numberOfScopes : ℕ} {Term : Set} (g : ScopeGraph numberOfSc
             firstScope path ≡ s → validEnd g D path → 
             path ∈ paths
 
-sat-helper : {numberOfScopes : ℕ} {Term : Set} {g : ScopeGraph numberOfScopes Term} 
-    (c1-sat c2-sat : (Σ Set λ s → (s → ScopeGraphFragment g))) → (Σ Set λ s → (s → ScopeGraphFragment g))
-sat-helper c1-sat c2-sat = Σ (proj₁ c1-sat × proj₁ c2-sat) 
-    ((λ (c1-proof , c2-proof) → DisjointGraphFragments (proj₂ c1-sat c1-proof) (proj₂ c2-sat c2-proof))) , 
-    λ ((c1-proof , c2-proof) , disjoint) → mergeFragments (proj₂ c1-sat c1-proof) (proj₂ c2-sat c2-proof)
-
 satisfies = proj₁
 fragment = proj₂
+
+sat-helper : {numberOfScopes : ℕ} {Term : Set} {g : ScopeGraph numberOfScopes Term} 
+    (c1-sat c2-sat : (Σ Set λ s → (s → ScopeGraphFragment g))) → (Σ Set λ s → (s → ScopeGraphFragment g))
+sat-helper c1-sat c2-sat = Σ (satisfies c1-sat × satisfies c2-sat) 
+    ((λ (c1-proof , c2-proof) → DisjointGraphFragments (fragment c1-sat c1-proof) (fragment c2-sat c2-proof))) , 
+    λ ((c1-proof , c2-proof) , disjoint) → mergeFragments (fragment c1-sat c1-proof) (fragment c2-sat c2-proof)
 
 sat : {numberOfScopes : ℕ} {Term : Set} (g : ScopeGraph numberOfScopes Term) → 
         Constraint g → (Σ Set λ s → (s → ScopeGraphFragment g))
@@ -74,7 +74,7 @@ sat g EmpC = ⊤ , λ s → empGf
 sat g FalseC = ⊥ , λ s → empGf
 sat g (c1 *C c2) = sat-helper (sat g c1) (sat g c2)
 sat g (EqC t1 t2) = (t1 ≡ t2) , λ s → empGf
-sat g (ExistsC {Term} cf) = (Σ Term λ t → proj₁ (sat g (cf t))) , λ (t , c-proof) → proj₂ (sat g (cf t)) c-proof
+sat g (ExistsC {Term} cf) = (Σ Term λ t → satisfies (sat g (cf t))) , λ (t , c-proof) → fragment (sat g (cf t)) c-proof
 sat g (SingleC t ts) = ((t ∷ []) ≡ ts) , λ single-proof → empGf
 sat g (ForallC [] cf) = sat g EmpC
 sat g (ForallC (t ∷ ts) cf) = sat-helper (sat g (cf t)) (sat g (ForallC ts cf))
@@ -82,15 +82,15 @@ sat g (NodeC s t) = (decl (g s) ≡ t) , λ _ → < s ∷ [] , [] >
 sat g (EdgeC e@(s₁ , l , s₂)) = ((l , s₂) ∈ edges (g s₁)) , 
     λ _ → < [] , e ∷ [] >
 sat g (DataC s t) = (decl (g s) ≡ t) , λ _ → < [] , [] >
-sat g (QueryC s r D cf) = (Σ (ValidQuery g s r D) (λ s → proj₁ (sat g (cf (ValidQuery.paths s))))) , 
-                            λ sat-proof → proj₂ (sat g (cf (ValidQuery.paths (proj₁ sat-proof)))) (proj₂ sat-proof)
+sat g (QueryC s r D cf) = (Σ (ValidQuery g s r D) (λ s → satisfies (sat g (cf (ValidQuery.paths s))))) , 
+                            λ sat-proof → fragment (sat g (cf (ValidQuery.paths (satisfies sat-proof)))) (fragment sat-proof)
 sat g (MinC paths paths' R? isPreorder) = (minPaths R? paths paths ≡ paths')  , λ _ → empGf
 
 validTopLevelGraphFragment : {numberOfScopes : ℕ} {Term : Set} {g : ScopeGraph numberOfScopes Term} → 
-    (c : Constraint g) → (c-proof : proj₁ (sat g c)) → Set
+    (c : Constraint g) → (c-proof : satisfies (sat g c)) → Set
 validTopLevelGraphFragment {_} {_} {g} c c-proof =  
-    (ScopeGraphFragment.fragmentNodes (proj₂ (sat g c) c-proof) ↭ 
+    (ScopeGraphFragment.fragmentNodes (fragment (sat g c) c-proof) ↭ 
         (ScopeGraphFragment.fragmentNodes (functionToFragment g))) × 
-    (ScopeGraphFragment.fragmentEdges (proj₂ (sat g c) c-proof) ↭ 
+    (ScopeGraphFragment.fragmentEdges (fragment (sat g c) c-proof) ↭ 
         ScopeGraphFragment.fragmentEdges (functionToFragment g))
 

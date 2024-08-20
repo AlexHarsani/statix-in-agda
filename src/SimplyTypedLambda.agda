@@ -74,7 +74,7 @@ module Proofs where
     program1 : Expr 
     program1 = lett "x" be (boolLit true) inn var "x"
 
-    type-check-proof : proj₁ (sat graph1 (typeOfExpression graph1 zero program1 bool))  
+    type-check-proof : satisfies (sat graph1 (typeOfExpression graph1 zero program1 bool))  
     type-check-proof = (refl , bool , suc zero , 
         (refl , (here refl , (refl , ((suc (suc zero) , (there (here refl) , refl) , disjointEmpty) , 
         (here refl , ((query-proof 
@@ -117,7 +117,7 @@ module Proofs where
     program2 : Expr 
     program2 = fun< "x" of num >body var "x"
 
-    type-check-proof2 : proj₁ (sat graph2 (typeOfExpression graph2 zero program2 (num to num)))
+    type-check-proof2 : satisfies (sat graph2 (typeOfExpression graph2 zero program2 (num to num)))
     type-check-proof2 = (refl , num , suc zero , (refl , (here refl , (refl , ((suc (suc zero) , 
         (there (here refl) , refl) , disjointEmpty) , (here refl , query-proof 
             (((((suc zero , d) ::' last' (suc (suc zero)))) ∷ [])) 
@@ -147,7 +147,7 @@ module Proofs where
     program3 : Expr
     program3 = fun program2 app numLit 3
 
-    type-check-proof3 : proj₁ (sat graph2 (typeOfExpression graph2 zero program3 num))
+    type-check-proof3 : satisfies (sat graph2 (typeOfExpression graph2 zero program3 num))
     type-check-proof3 = (refl , num , ((num , suc zero , (refl , (here refl , (refl , 
         ((suc (suc zero) , (there (here refl) , refl) , disjointEmpty) , (here refl , query-proof 
             (((((suc zero , d) ::' last' (suc (suc zero)))) ∷ [])) 

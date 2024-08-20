@@ -138,8 +138,8 @@ mutual
     type-preservation-proof : (g : ScopeGraph numberOfScopes NodeTerm) →
         (s : Fin numberOfScopes) →
         (e : Expr) (t : Type) →
-        proj₁ (sat g (typeOfExpression' g s e t)) → 
-        proj₁ (sat g (typeOfExpression' g s (eval e) t))
+        satisfies (sat g (typeOfExpression' g s e t)) → 
+        satisfies (sat g (typeOfExpression' g s (eval e) t))
     type-preservation-proof g s (numLit x) num hypothesis = hypothesis
     type-preservation-proof g s (e1 +' e2) num ((+-num , (e1-num , e2-num) , d1) , d2) with view (e1 +' e2)
     ... | addLitView = refl
