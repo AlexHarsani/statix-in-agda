@@ -74,8 +74,8 @@ module Proofs where
     program1 : Expr 
     program1 = lett "x" be (boolLit true) inn var "x"
 
-    type-check-proof : satisfies (sat graph1 (typeOfExpression graph1 zero program1 bool))  
-    type-check-proof = (refl , bool , suc zero , 
+    constraint-satisfied : satisfies (sat graph1 (typeOfExpression graph1 zero program1 bool))  
+    constraint-satisfied = (refl , bool , suc zero , 
         (refl , (here refl , (refl , ((suc (suc zero) , (there (here refl) , refl) , disjointEmpty) , 
         (here refl , ((query-proof 
                     ((((suc zero , d) ::' last' (suc (suc zero)))) ∷ [])
@@ -105,9 +105,11 @@ module Proofs where
                             ; (there ()) }) disjointEmpty) , disjointNonEmpty (λ { (there (here ()))
                                                                                  ; (there (there ())) }) disjointEmpty
     
-    type-check-fragment : validTopLevelGraphFragment ((typeOfExpression graph1 zero program1 bool)) type-check-proof
-    type-check-fragment =  refl , prep (zero , d , suc zero) (_↭_.swap (suc zero , d , suc (suc zero)) (suc zero , l , zero) refl)
+    valid-fragment : validTopLevelGraphFragment ((typeOfExpression graph1 zero program1 bool)) constraint-satisfied
+    valid-fragment =  refl , prep (zero , d , suc zero) (_↭_.swap (suc zero , d , suc (suc zero)) (suc zero , l , zero) refl)
 
+    type-check-proof : topLevelConstraintTypeCheck graph1 (typeOfExpression graph1 zero program1 bool)
+    type-check-proof = constraint-satisfied , valid-fragment
 
     graph2 : ScopeGraph 3 NodeTerm
     graph2 zero = (d , (suc zero)) ∷ [] , empNode
@@ -117,8 +119,8 @@ module Proofs where
     program2 : Expr 
     program2 = fun< "x" of num >body var "x"
 
-    type-check-proof2 : satisfies (sat graph2 (typeOfExpression graph2 zero program2 (num to num)))
-    type-check-proof2 = (refl , num , suc zero , (refl , (here refl , (refl , ((suc (suc zero) , 
+    constraint-satisfied2 : satisfies (sat graph2 (typeOfExpression graph2 zero program2 (num to num)))
+    constraint-satisfied2 = (refl , num , suc zero , (refl , (here refl , (refl , ((suc (suc zero) , 
         (there (here refl) , refl) , disjointEmpty) , (here refl , query-proof 
             (((((suc zero , d) ::' last' (suc (suc zero)))) ∷ [])) 
             ((λ { (here refl) → there (here refl) })) 
@@ -141,14 +143,17 @@ module Proofs where
                     ; {(suc zero , label) ::' ((suc (suc zero) , label2) ::' ((suc (suc zero) , label3) ::' path))} (a , b , c , rest) → ⊥-elim (c (here refl))
                     }) , ((((suc zero , d) ::' last' (suc (suc zero))))) , refl) , disjointEmpty) , disjointNonEmpty (λ { () }) disjointEmpty) , disjointEmpty) , disjointEmpty) , disjointNonEmpty (λ { (here ()) ; (there ()) }) disjointEmpty) , disjointNonEmpty (λ { (there (here ())) ; (there (there ())) }) disjointEmpty   
 
-    type-check-fragment2 : validTopLevelGraphFragment ((typeOfExpression graph2 zero program2 (num to num))) type-check-proof2
-    type-check-fragment2 = refl , prep (zero , d , suc zero) (_↭_.swap (suc zero , d , suc (suc zero)) (suc zero , l , zero)  refl)
+    valid-fragment2 : validTopLevelGraphFragment ((typeOfExpression graph2 zero program2 (num to num))) constraint-satisfied2
+    valid-fragment2 = refl , prep (zero , d , suc zero) (_↭_.swap (suc zero , d , suc (suc zero)) (suc zero , l , zero)  refl)
+
+    type-check-proof2 : topLevelConstraintTypeCheck graph2 (typeOfExpression graph2 zero program2 (num to num))
+    type-check-proof2 = constraint-satisfied2 , valid-fragment2
 
     program3 : Expr
     program3 = fun program2 app numLit 3
 
-    type-check-proof3 : satisfies (sat graph2 (typeOfExpression graph2 zero program3 num))
-    type-check-proof3 = (refl , num , ((num , suc zero , (refl , (here refl , (refl , 
+    constraint-satisfied3 : satisfies (sat graph2 (typeOfExpression graph2 zero program3 num))
+    constraint-satisfied3 = (refl , num , ((num , suc zero , (refl , (here refl , (refl , 
         ((suc (suc zero) , (there (here refl) , refl) , disjointEmpty) , (here refl , query-proof 
             (((((suc zero , d) ::' last' (suc (suc zero)))) ∷ [])) 
             ((λ { (here refl) → there (here refl) })) 
@@ -171,5 +176,8 @@ module Proofs where
                     })) , (((suc zero , d) ::' last' (suc (suc zero)))) , refl) , disjointEmpty) , disjointNonEmpty (λ { () }) disjointEmpty) , disjointEmpty) , disjointEmpty) , 
         disjointNonEmpty (λ { (here ()) ; (there ()) }) disjointEmpty) , refl) , disjointNonEmpty (λ { () }) (disjointNonEmpty (λ { () }) disjointEmpty)) , disjointNonEmpty (λ { (there (here ())) ; (there (there ())) }) disjointEmpty  
 
-    type-check-fragment3 : validTopLevelGraphFragment ((typeOfExpression graph2 zero program3 (num))) type-check-proof3
-    type-check-fragment3 = refl , prep (zero , d , suc zero) (_↭_.swap (suc zero , d , suc (suc zero)) (suc zero , l , zero) refl)   
+    valid-fragment3 : validTopLevelGraphFragment ((typeOfExpression graph2 zero program3 (num))) constraint-satisfied3
+    valid-fragment3 = refl , prep (zero , d , suc zero) (_↭_.swap (suc zero , d , suc (suc zero)) (suc zero , l , zero) refl)
+
+    type-check-proof3 : topLevelConstraintTypeCheck graph2 (typeOfExpression graph2 zero program3 num)
+    type-check-proof3 = constraint-satisfied3 , valid-fragment3

@@ -94,3 +94,5 @@ validTopLevelGraphFragment {_} {_} {g} c c-proof =
     (ScopeGraphFragment.fragmentEdges (fragment (sat g c) c-proof) ↭ 
         ScopeGraphFragment.fragmentEdges (functionToFragment g))
 
+topLevelConstraintTypeCheck : {numberOfScopes : ℕ} {Term : Set} → (g : ScopeGraph numberOfScopes Term) → (Constraint g) → Set
+topLevelConstraintTypeCheck g c = Σ (satisfies (sat g c)) λ c-proof → validTopLevelGraphFragment c c-proof
